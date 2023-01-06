@@ -1,5 +1,3 @@
-//100 de diferencia en movimiento
-
 "use strict";
 // cSpell:ignore 2vmin Leaderboard
 import Grid from "/FRONTEND/Grid.js";
