@@ -1,21 +1,21 @@
-"use strict";
 // cSpell:ignore randomatic
 
-// delete
-import express from "express";
+import path from "path";
+import url from "url";
+import bcrypt from "bcrypt";
 import chalk from "chalk";
 import cors from "cors";
-import randomatic from "randomatic";
-import bcrypt from "bcrypt";
+// delete
+import express from "express";
 import mongoose, { get } from "mongoose";
-import url from "url";
-import path from "path";
+import randomatic from "randomatic";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
-let mongoConnection = "mongodb+srv://admin:IpQnoc0Vjl5hZxvL@purple_2048.ap4rwmw.mongodb.net/Purple_2048";
-let db = mongoose.connection;
+const mongoConnection =
+	"mongodb+srv://admin:IpQnoc0Vjl5hZxvL@purple_2048.ap4rwmw.mongodb.net/Purple_2048";
+const db = mongoose.connection;
 
 db.on("connecting", () => {
 	console.log(chalk.blue("connecting"));
@@ -28,7 +28,7 @@ db.on("connected", () => {
 const app = express();
 const port = 4000;
 
-let userSchema = mongoose.Schema({
+const userSchema = mongoose.Schema({
 	email: {
 		type: String,
 		required: true,
@@ -55,10 +55,10 @@ let userSchema = mongoose.Schema({
 		type: String,
 	},
 });
-let User = mongoose.model("users", userSchema);
+const User = mongoose.model("users", userSchema);
 
 async function authenticate(req, res, next) {
-	if (req.originalUrl == "/api/users" && req.method == "POST") {
+	if (req.originalUrl === "/api/users" && req.method === "POST") {
 		next();
 		return;
 	}
@@ -68,8 +68,8 @@ async function authenticate(req, res, next) {
 		return;
 	}
 	try {
-		let user = await User.findOne({ token: req.get("x-auth-user") });
-		if (user == undefined) {
+		const user = await User.findOne({ token: req.get("x-auth-user") });
+		if (user === undefined) {
 			res.status(401);
 			res.send("Invalid token");
 			return;
@@ -86,7 +86,7 @@ async function authenticate(req, res, next) {
 app.use(
 	cors({
 		methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
-	})
+	}),
 );
 app.use(express.json());
 
@@ -104,11 +104,11 @@ app.get("/", (req, res) => {
 app.put("/api/login", async (req, res) => {
 	let v = false;
 	let text = "The following attributes are missing: ";
-	if (req.body.username == undefined) {
+	if (req.body.username === undefined) {
 		v = true;
 		text += "username, ";
 	}
-	if (req.body.password == undefined) {
+	if (req.body.password === undefined) {
 		v = true;
 		text += "password, ";
 	}
@@ -119,7 +119,7 @@ app.put("/api/login", async (req, res) => {
 	}
 
 	try {
-		let user = await User.findOne({ username: req.body.username });
+		const user = await User.findOne({ username: req.body.username });
 		if (user == null) {
 			res.status(401);
 			res.send("User doesn't exist");
@@ -130,8 +130,8 @@ app.put("/api/login", async (req, res) => {
 			res.send("Incorrect password");
 			return;
 		}
-		if (user.token == undefined) {
-			user.token = randomatic("Aa0", "10") + "-" + user._id;
+		if (user.token === undefined) {
+			user.token = `${randomatic("Aa0", "10")}-${user._id}`;
 			await user.save();
 		}
 		res.send(user.token);
@@ -144,7 +144,7 @@ app.put("/api/login", async (req, res) => {
 
 app.get("/api/users", async (req, res) => {
 	try {
-		let user = await User.findById(req.id);
+		const user = await User.findById(req.id);
 		res.send(user);
 	} catch (e) {
 		console.log(chalk.red(e));
@@ -156,15 +156,15 @@ app.get("/api/users", async (req, res) => {
 app.post("/api/users", async (req, res) => {
 	let v = false;
 	let text = "The following attributes are missing: ";
-	if (req.body.email == undefined) {
+	if (req.body.email === undefined) {
 		v = true;
 		text += "email, ";
 	}
-	if (req.body.password == undefined) {
+	if (req.body.password === undefined) {
 		v = true;
 		text += "password, ";
 	}
-	if (req.body.username == undefined) {
+	if (req.body.username === undefined) {
 		v = true;
 		text += "username, ";
 	}
@@ -175,7 +175,7 @@ app.post("/api/users", async (req, res) => {
 	}
 	try {
 		let user = await User.find({ username: req.body.username });
-		if (user.length != 0) {
+		if (user.length !== 0) {
 			res.status(400);
 			res.send("Username already exist");
 			return;
@@ -195,16 +195,20 @@ app.post("/api/users", async (req, res) => {
 app.put("/api/users", async (req, res) => {
 	try {
 		let user = await User.findById(req.id);
-		if (req.body.oldPassword != undefined && !bcrypt.compareSync(req.body.oldPassword, user.password)) {
+		if (
+			req.body.oldPassword !== undefined &&
+			!bcrypt.compareSync(req.body.oldPassword, user.password)
+		) {
 			res.status(401);
 			res.send("Wrong password");
 			return;
-		} else if (req.body.password != undefined) {
+		}
+		if (req.body.password !== undefined) {
 			req.body.password = bcrypt.hashSync(req.body.password, 10);
 		}
-		if (req.body.username != undefined) {
-			let usernameUnique = await User.find({ username: req.body.username });
-			if (usernameUnique.length != 0) {
+		if (req.body.username !== undefined) {
+			const usernameUnique = await User.find({ username: req.body.username });
+			if (usernameUnique.length !== 0) {
 				res.status(400);
 				res.send("Username already exists...");
 				return;
@@ -233,12 +237,12 @@ app.delete("/api/users", async (req, res) => {
 
 app.get("/api/users/bestScores", async (req, res) => {
 	try {
-		if (req.query.index == undefined) {
-			let best = await User.findById(req.id).select("bests -_id");
+		if (req.query.index === undefined) {
+			const best = await User.findById(req.id).select("bests -_id");
 			res.send(JSON.stringify(best));
 			return;
 		}
-		let best = await User.findById(req.id).select("bests -_id");
+		const best = await User.findById(req.id).select("bests -_id");
 		res.send(JSON.stringify(best.bests[req.query.index]));
 	} catch (e) {
 		console.log(chalk.red(e));
@@ -249,8 +253,8 @@ app.get("/api/users/bestScores", async (req, res) => {
 
 app.put("/api/users/bestScores", async (req, res) => {
 	try {
-		let user = await User.findById(req.id);
-		if (user.bests == undefined) {
+		const user = await User.findById(req.id);
+		if (user.bests === undefined) {
 			user.bests = [];
 		}
 		let i;
@@ -262,19 +266,26 @@ app.put("/api/users/bestScores", async (req, res) => {
 			user.bests.pop();
 		}
 
-		let saves = await User.where("leader").gt(0);
+		const saves = await User.where("leader").gt(0);
 
-		if (saves.length == 0) {
+		if (saves.length === 0) {
 			user.leader += 1;
 		} else {
 			let cnt = 0;
 			let lastBest = saves[0];
-			saves.forEach((item) => {
-				if (item.bests[item.leader - 1].score < lastBest.bests[item.leader - 1].score) lastBest = item;
+			for (const item of saves) {
+				if (
+					item.bests[item.leader - 1].score <
+					lastBest.bests[item.leader - 1].score
+				)
+					lastBest = item;
 				cnt += item.leader;
-			});
-			if (cnt == 5 && lastBest.bests[lastBest.leader - 1].score < req.body.score) {
-				if (user.username != lastBest.username) {
+			}
+			if (
+				cnt === 5 &&
+				lastBest.bests[lastBest.leader - 1].score < req.body.score
+			) {
+				if (user.username !== lastBest.username) {
 					user.leader += 1;
 					lastBest.leader -= 1;
 					await lastBest.save();
@@ -294,12 +305,12 @@ app.put("/api/users/bestScores", async (req, res) => {
 
 app.get("/api/users/saveGames", async (req, res) => {
 	try {
-		if (req.query.index == undefined) {
-			let saves = await User.findById(req.id).select("saveBoards -_id");
+		if (req.query.index === undefined) {
+			const saves = await User.findById(req.id).select("saveBoards -_id");
 			res.send(JSON.stringify(saves));
 			return;
 		}
-		let saves = await User.findById(req.id).select("saveBoards -_id");
+		const saves = await User.findById(req.id).select("saveBoards -_id");
 		res.send(JSON.stringify(saves.saveBoards[req.query.index]));
 	} catch (e) {
 		console.log(chalk.red(e));
@@ -310,14 +321,16 @@ app.get("/api/users/saveGames", async (req, res) => {
 
 app.put("/api/users/saveGames", async (req, res) => {
 	try {
-		let user = await User.findById(req.id);
+		const user = await User.findById(req.id);
 
-		let index = user.saveBoards.findIndex((item) => item.name == req.body.name);
-		if (index != -1) {
+		const index = user.saveBoards.findIndex(
+			(item) => item.name === req.body.name,
+		);
+		if (index !== -1) {
 			user.saveBoards.splice(index, 1);
 		}
 
-		if (user.saveBoards != undefined && user.saveBoards.length == 5) {
+		if (user.saveBoards !== undefined && user.saveBoards.length === 5) {
 			user.saveBoards.shift();
 		}
 
@@ -333,20 +346,22 @@ app.put("/api/users/saveGames", async (req, res) => {
 
 app.get("/api/users/leaders", async (req, res) => {
 	try {
-		let saves = await User.where("leader").gt(0).select("leader bests username -_id");
-		if (saves.length == 0) {
+		const saves = await User.where("leader")
+			.gt(0)
+			.select("leader bests username -_id");
+		if (saves.length === 0) {
 			res.send(JSON.stringify(saves));
 			return;
 		}
-		let leaders = [];
-		saves.forEach((item) => {
+		const leaders = [];
+		for (const item of saves) {
 			for (let i = 0; i < item.leader; i++) {
 				leaders.push({
 					username: item.username,
 					score: item.bests[i].score,
 				});
 			}
-		});
+		}
 
 		leaders.sort((a, b) => b.score - a.score);
 		res.send(JSON.stringify(leaders));
@@ -359,5 +374,5 @@ app.get("/api/users/leaders", async (req, res) => {
 
 mongoose.connect(mongoConnection, { useNewUrlParser: true });
 app.listen(port, () => {
-	console.log("API running on port " + port);
+	console.log(`API running on port ${port}`);
 });
