@@ -25,8 +25,14 @@
 	},
 	"formatter": {
 		"enabled": true,
+
 		"indentStyle": "tab"
-	},
+		},
+		"javascript": {
+			"formatter": {
+				"quoteStyle": "single"
+			}
+		},
 	"organizeImports": {
 		"enabled": true
 	},
