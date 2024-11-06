@@ -101,7 +101,7 @@ app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, './FRONTEND/login.html'));
 });
 
-//YA
+//YA route, controller
 app.put('/api/login', async (req, res) => {
 	let v = false;
 	let text = 'The following attributes are missing: ';
@@ -143,7 +143,7 @@ app.put('/api/login', async (req, res) => {
 	}
 });
 
-//YA
+//YA route, controller
 app.get('/api/users', async (req, res) => {
 	try {
 		const user = await User.findById(req.id);
@@ -155,7 +155,7 @@ app.get('/api/users', async (req, res) => {
 	}
 });
 
-//YA
+//YA route, controller
 app.post('/api/users', async (req, res) => {
 	let v = false;
 	let text = 'The following attributes are missing: ';
@@ -195,7 +195,7 @@ app.post('/api/users', async (req, res) => {
 	}
 });
 
-//YA
+//YA route controller
 app.put('/api/users', async (req, res) => {
 	try {
 		let user = await User.findById(req.id);
@@ -228,7 +228,7 @@ app.put('/api/users', async (req, res) => {
 	}
 });
 
-//YA
+//YA route
 app.delete('/api/users', async (req, res) => {
 	try {
 		await User.deleteOne({ _id: req.id });
@@ -240,7 +240,7 @@ app.delete('/api/users', async (req, res) => {
 	}
 });
 
-//YA
+//YA route
 app.get('/api/users/bestScores', async (req, res) => {
 	try {
 		if (req.query.index === undefined) {
@@ -257,7 +257,7 @@ app.get('/api/users/bestScores', async (req, res) => {
 	}
 });
 
-//YA
+//YA route
 app.put('/api/users/bestScores', async (req, res) => {
 	try {
 		const user = await User.findById(req.id);
@@ -310,7 +310,7 @@ app.put('/api/users/bestScores', async (req, res) => {
 	}
 });
 
-// YA
+// YA route
 app.get('/api/users/saveGames', async (req, res) => {
 	try {
 		if (req.query.index === undefined) {
@@ -327,7 +327,7 @@ app.get('/api/users/saveGames', async (req, res) => {
 	}
 });
 
-//YA
+//YA route
 app.put('/api/users/saveGames', async (req, res) => {
 	try {
 		const user = await User.findById(req.id);
@@ -353,6 +353,7 @@ app.put('/api/users/saveGames', async (req, res) => {
 	}
 });
 
+//YA route
 app.get('/api/users/leaders', async (req, res) => {
 	try {
 		const saves = await User.where('leader')
