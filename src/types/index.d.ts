@@ -1,3 +1,4 @@
+import { Request } from 'express';
 export interface User {
 	email: string;
 	password: string;
@@ -19,4 +20,13 @@ interface BoardItem {
 interface BestsItem {
 	board: BoardItem[];
 	score: number;
+}
+
+export type InputToken = {
+	name: string;
+	email: string;
+};
+
+export interface RequestUser extends Request {
+	user?: User;
 }
