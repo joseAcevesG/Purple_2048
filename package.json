@@ -37,6 +37,7 @@
 		"mongoose": "^6.8.2",
 		"path": "^0.12.7",
 		"randomatic": "^3.1.1",
+		"sequelize": "^6.37.5",
 		"url": "^0.11.0"
 	},
 	"devDependencies": {

@@ -1,38 +1,49 @@
-import { User as UserType } from '../types';
+const { DataTypes } = require('sequelize');
+const sequelize = require('./db-config');
 
-const dummyUser = {
-	email: 'test@tets',
-	password: '1234',
-	username: 'test',
-	saveBoards: [{ name: 'test', board: [{ x: 0, y: 0, value: 0 }], score: 0 }],
-	bests: [{ board: [{ x: 0, y: 0, value: 0 }], score: 0 }],
-	leader: 0,
-};
+const User = sequelize.define(
+	'User',
+	{
+		id: {
+			type: DataTypes.BIGINT,
+			autoIncrement: true,
+			primaryKey: true,
+		},
+		email: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			unique: true,
+		},
+		password: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		username: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			unique: true,
+		},
+		saveBoards: {
+			type: DataTypes.JSON, // Utiliza JSON para almacenar arreglos o estructuras anidadas
+			allowNull: true,
+		},
+		bests: {
+			type: DataTypes.JSON, // También JSON aquí para almacenar el array
+			allowNull: true,
+		},
+		leader: {
+			type: DataTypes.INTEGER,
+			defaultValue: 0,
+		},
+		token: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+	},
+	{
+		tableName: 'users',
+		timestamps: false, // Si no usas createdAt y updatedAt
+	},
+);
 
-class User {
-	create(client: UserType): Promise<UserType> {
-		return Promise.resolve(dummyUser);
-	}
-
-	update(client: UserType): Promise<UserType> {
-		return Promise.resolve(dummyUser);
-	}
-
-	delete(id: string): Promise<void> {
-		return Promise.resolve();
-	}
-
-	getAll(): Promise<UserType[]> {
-		return Promise.resolve([dummyUser]);
-	}
-
-	get(id: string): Promise<UserType> {
-		return Promise.resolve(dummyUser);
-	}
-
-	findByEmail(email: string): Promise<UserType> {
-		return Promise.resolve(dummyUser);
-	}
-}
-
-export default new User();
+module.exports = User;
