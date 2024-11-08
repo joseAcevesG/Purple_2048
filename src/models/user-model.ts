@@ -1,7 +1,7 @@
 // models/User.ts
-import { Model, DataTypes, Optional } from 'sequelize';
-import sequelize from './rds-config';
+import { DataTypes, Model, Optional } from 'sequelize';
 import { SaveBoardsItem, User } from '../types';
+import sequelize from './rds-config';
 
 // Definimos una interfaz para los atributos opcionales al crear un nuevo usuario
 interface UserCreationAttributes
