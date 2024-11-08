@@ -4,9 +4,9 @@ export interface User {
 	email: string;
 	password: string;
 	username: string;
-	saveBoards: SaveBoardsItem[];
-	bests: BestsItem[];
-	leader: number;
+	saveBoards?: SaveBoardsItem[];
+	bests?: BestsItem[];
+	leader?: number;
 }
 interface SaveBoardsItem {
 	name: string;

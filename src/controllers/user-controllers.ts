@@ -20,12 +20,12 @@ class UsersController {
 
 		userModel
 			.create(data)
-			.then((user) => {
+			.then((user: User) => {
 				res.status(ResponseStatus.CREATED).send({
 					token: createToken({ name: user.username, email: user.email }),
 				});
 			})
-			.catch((err) => {
+			.catch((err: Error) => {
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
@@ -33,30 +33,32 @@ class UsersController {
 			});
 	}
 
-	logIn(req: Request, res: Response) {
-		userModel
-			.findByEmail(req.body.email)
-			.then((user) => {
-				if (req.body.password !== user.password) {
-					throw new UnauthorizedError('Unauthorized');
-				}
-				res.status(ResponseStatus.SUCCESS).send({
-					token: createToken({ name: user.username, email: user.email }),
-				});
-			})
-			.catch((err) => {
-				if (err instanceof UnauthorizedError) {
-					res
-						.status(ResponseStatus.UNAUTHORIZED)
-						.send('password or email is incorrect');
-					return;
-				}
-				console.error(err);
-				res
-					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
-					.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
-			});
-	}
+	//ERROR por el metodo del modelo
+
+	// logIn(req: Request, res: Response) {
+	// 	userModel
+	// 		.findByEmail(req.body.email)
+	// 		.then((user: User) => {
+	// 			if (req.body.password !== user.password) {
+	// 				throw new UnauthorizedError('Unauthorized');
+	// 			}
+	// 			res.status(ResponseStatus.SUCCESS).send({
+	// 				token: createToken({ name: user.username, email: user.email }),
+	// 			});
+	// 		})
+	// 		.catch((err: Error) => {
+	// 			if (err instanceof UnauthorizedError) {
+	// 				res
+	// 					.status(ResponseStatus.UNAUTHORIZED)
+	// 					.send('password or email is incorrect');
+	// 				return;
+	// 			}
+	// 			console.error(err);
+	// 			res
+	// 				.status(ResponseStatus.INTERNAL_SERVER_ERROR)
+	// 				.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
+	// 		});
+	// }
 
 	getUser(req: RequestUser, res: Response) {
 		res.status(ResponseStatus.SUCCESS).send(req.user);
@@ -71,17 +73,20 @@ class UsersController {
 			bests: req.body.bests,
 			leader: req.body.leader,
 		};
-		userModel
-			.update(data)
-			.then((user) => {
-				res.status(ResponseStatus.SUCCESS).send(user);
-			})
-			.catch((err) => {
-				console.error(err);
-				res
-					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
-					.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
-			});
+
+		//ERROR por el metodo del modelo
+
+		// userModel
+		// 	.update(data)
+		// 	.then((user: User) => {
+		// 		res.status(ResponseStatus.SUCCESS).send(user);
+		// 	})
+		// 	.catch((err: Error) => {
+		// 		console.error(err);
+		// 		res
+		// 			.status(ResponseStatus.INTERNAL_SERVER_ERROR)
+		// 			.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
+		// 	});
 	}
 }
 

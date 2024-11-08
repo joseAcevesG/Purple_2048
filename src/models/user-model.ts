@@ -1,18 +1,38 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./db-config');
+// models/User.ts
+import { Model, DataTypes, Optional } from 'sequelize';
+import sequelize from './rds-config';
+import { SaveBoardsItem, User } from '../types';
 
-const UserModel = sequelize.define(
-	'User',
+// Definimos una interfaz para los atributos opcionales al crear un nuevo usuario
+interface UserCreationAttributes
+	extends Optional<User, 'id' | 'saveBoards' | 'leader'> {}
+
+// Creamos la clase del modelo de usuario extendiendo Model
+class UserModel extends Model<User, UserCreationAttributes> implements User {
+	public id!: string;
+	public email!: string;
+	public password!: string;
+	public username!: string;
+	public saveBoards?: SaveBoardsItem[];
+	public leader?: number;
+	public token?: string;
+
+	// Timestamps automáticos
+	public readonly createdAt!: Date;
+	public readonly updatedAt!: Date;
+}
+
+// Inicializamos el modelo
+UserModel.init(
 	{
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
 		},
 		email: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			unique: true,
 		},
 		password: {
 			type: DataTypes.STRING,
@@ -21,28 +41,16 @@ const UserModel = sequelize.define(
 		username: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			unique: true,
 		},
 		saveBoards: {
-			type: DataTypes.JSON, // Utiliza JSON para almacenar arreglos o estructuras anidadas
-			allowNull: true,
-		},
-		bests: {
-			type: DataTypes.JSON, // También JSON aquí para almacenar el array
-			allowNull: true,
-		},
-		leader: {
-			type: DataTypes.INTEGER,
-			defaultValue: 0,
-		},
-		token: {
-			type: DataTypes.STRING,
+			type: DataTypes.JSON, // Usamos JSON si el array puede contener estructuras complejas
 			allowNull: true,
 		},
 	},
 	{
+		sequelize, // La instancia de conexión
 		tableName: 'users',
-		timestamps: false, // Si no usas createdAt y updatedAt
+		timestamps: true, // Esto agregará createdAt y updatedAt automáticamente
 	},
 );
 
