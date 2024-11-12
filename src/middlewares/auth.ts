@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
-import user from '../models/user-model';
+import user from '../models/user-rds-model';
 import { RequestUser } from '../types';
 import ResponseStatus from '../types/response-codes';
 import UnauthorizedError from '../utils/UnauthorizedError';

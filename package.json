@@ -25,6 +25,8 @@
 	},
 	"homepage": "https://github.com/PurpleOzone/Purple_2048#readme",
 	"dependencies": {
+		"@aws-sdk/client-dynamodb": "^3.687.0",
+		"@aws-sdk/lib-dynamodb": "^3.687.0",
 		"@types/cors": "^2.8.17",
 		"@types/jsonwebtoken": "^9.0.7",
 		"bcrypt": "^5.1.0",
