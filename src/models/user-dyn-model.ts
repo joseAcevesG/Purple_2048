@@ -1,4 +1,11 @@
-import { PutCommand, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
+import {
+	DeleteCommand,
+	DeleteCommandOutput,
+	GetCommand,
+	GetCommandOutput,
+	PutCommand,
+	PutCommandOutput,
+} from '@aws-sdk/lib-dynamodb';
 import { User } from '../types';
 import docClient from '../utils/dynamo';
 
@@ -9,11 +16,17 @@ class UserDynModel {
 		return docClient.send(new PutCommand(params));
 	}
 
-    getUser(email: string): Promise<User> {
-        const params = { TableName: process.env.DYNAMODB_TABLE_NAME, Key: { email } };
+	getUser(id: string): Promise<GetCommandOutput> {
+		const params = { TableName: process.env.DYNAMODB_TABLE_NAME, Key: { id } };
 
-        return docClient.send(new GetCommand(params));
-    }
+		return docClient.send(new GetCommand(params));
+	}
+
+	deleteUser(id: string): Promise<DeleteCommandOutput> {
+		const params = { TableName: process.env.DYNAMODB_TABLE_NAME, Key: { id } };
+
+		return docClient.send(new DeleteCommand(params));
+	}
 }
 
 export default new UserDynModel();
