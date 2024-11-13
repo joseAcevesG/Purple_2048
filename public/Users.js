@@ -12,9 +12,6 @@ export {
 	deleteUser,
 };
 
-// const Url = "http://localhost:3000";
-const Url = 'https://purple2048.cyclic.app/';
-
 function makeRequest(method, url, headers = undefined, body = undefined) {
 	document.getElementById('main').classList.add('over');
 	if (document.firstElementChild.getAttribute('pag') === 'board') {
