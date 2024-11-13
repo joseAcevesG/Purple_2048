@@ -30,15 +30,15 @@ function makeRequest(method, url, headers = undefined, body = undefined) {
 		document.getElementById('modalCreate').classList.add('over');
 	}
 	document.getElementById('lottie').style.display = 'block';
-	return new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest();
-		xhr.open(method, Url + url);
-		if (headers !== undefined) {
-			for (const item of headers) {
-				xhr.setRequestHeader(item.name, item.value);
-			}
-		}
-		xhr.onload = function () {
+
+	const options = {
+		method: method,
+		headers: headers ? headers : {},
+		body: body ? JSON.stringify(body) : undefined,
+	};
+
+	return fetch(url, options)
+		.then((response) => {
 			document.getElementById('main').classList.remove('over');
 			if (document.firstElementChild.getAttribute('pag') === 'board') {
 				document.getElementById('Leaderboard').classList.remove('over');
@@ -53,26 +53,22 @@ function makeRequest(method, url, headers = undefined, body = undefined) {
 				document.getElementById('modalCreate').classList.remove('over');
 			}
 			document.getElementById('lottie').style.display = 'none';
-			if (this.status >= 200 && this.status < 300) {
-				resolve(xhr.response);
-			} else {
-				reject({
-					status: this.status,
-					response: xhr.response,
-				});
+
+			if (response.ok) {
+				return response.json();
 			}
-		};
-		xhr.onerror = function () {
-			reject({
-				status: this.status,
-				response: xhr.response,
+			return Promise.reject({
+				status: response.status,
+				response: response.statusText,
 			});
-		};
-		if (body === undefined) xhr.send();
-		else {
-			xhr.send(JSON.stringify(body));
-		}
-	});
+		})
+		.catch((error) => {
+			document.getElementById('lottie').style.display = 'none';
+			return Promise.reject({
+				status: error.status || 'Network error',
+				response: error.response || 'Unable to complete request',
+			});
+		});
 }
 
 function login() {
@@ -85,7 +81,7 @@ function login() {
 
 function logout() {
 	localStorage.token = undefined;
-	window.location.href = '/FRONTEND/login.html';
+	window.location.href = '/assets/login.html';
 }
 
 async function createUser() {
@@ -106,7 +102,7 @@ async function createUser() {
 		let newUser = await makeRequest(
 			'POST',
 			'/api/users',
-			[{ name: 'Content-Type', value: 'application/json' }],
+			{ 'Content-Type': 'application/json' },
 			user,
 		);
 		newUser = JSON.parse(newUser);
@@ -126,11 +122,11 @@ async function putLogin(data) {
 		const token = await makeRequest(
 			'PUT',
 			'/api/login',
-			[{ name: 'Content-Type', value: 'application/json' }],
+			{ 'Content-Type': 'application/json' },
 			data,
 		);
 		localStorage.token = token;
-		window.location.href = '/FRONTEND/board.html';
+		window.location.href = '/assets/board.html';
 	} catch (e) {
 		console.log(e);
 		alert(`${e.status}: ${e.response}`);
@@ -139,10 +135,10 @@ async function putLogin(data) {
 
 async function initData() {
 	try {
-		let user = await makeRequest('GET', '/api/users', [
-			{ name: 'x-auth-user', value: localStorage.token },
-			{ name: 'Content-Type', value: 'application/json' },
-		]);
+		let user = await makeRequest('GET', '/api/users', {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		user = JSON.parse(user);
 		document.getElementById('username').innerHTML =
 			`Username: ${user.username}`;
@@ -218,10 +214,7 @@ async function editUser() {
 		const editedUser = await makeRequest(
 			'PUT',
 			'/api/users',
-			[
-				{ name: 'x-auth-user', value: localStorage.token },
-				{ name: 'Content-Type', value: 'application/json' },
-			],
+			{ 'Content-Type': 'application/json', 'x-auth-user': localStorage.token },
 			body,
 		);
 
@@ -239,10 +232,10 @@ async function editUser() {
 
 async function deleteUser() {
 	try {
-		await makeRequest('DELETE', '/api/users', [
-			{ name: 'x-auth-user', value: localStorage.token },
-			{ name: 'Content-Type', value: 'application/json' },
-		]);
+		await makeRequest('DELETE', '/api/users', {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		alert('User deleted');
 		logout();
 	} catch (e) {
@@ -253,10 +246,10 @@ async function deleteUser() {
 
 async function bestScores() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/bestScores', [
-			{ name: 'x-auth-user', value: localStorage.token },
-			{ name: 'Content-Type', value: 'application/json' },
-		]);
+		let bestScores = await makeRequest('GET', '/api/users/bestScores', {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		bestScores = JSON.parse(bestScores).bests;
 		if (bestScores.length === 0) {
 			document.getElementById('score1').disabled = true;
@@ -290,10 +283,10 @@ async function bestScores() {
 
 async function loadGames() {
 	try {
-		let saves = await makeRequest('GET', '/api/users/saveGames', [
-			{ name: 'x-auth-user', value: localStorage.token },
-			{ name: 'Content-Type', value: 'application/json' },
-		]);
+		let saves = await makeRequest('GET', '/api/users/saveGames', {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		const children = document.getElementById('loads').children;
 		for (let i = children.length - 1; i >= 0; i--) {
 			document.getElementById('loads').removeChild(children[i]);
@@ -315,10 +308,10 @@ async function loadGames() {
 
 async function leaderBoard() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/leaders', [
-			{ name: 'x-auth-user', value: localStorage.token },
-			{ name: 'Content-Type', value: 'application/json' },
-		]);
+		let bestScores = await makeRequest('GET', '/api/users/leaders', {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		bestScores = JSON.parse(bestScores);
 		if (bestScores.length === 0) return;
 		bestScores.forEach((item, index) => {

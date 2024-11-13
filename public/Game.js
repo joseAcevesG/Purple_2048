@@ -1,6 +1,6 @@
 // cSpell:ignore 2vmin Leaderboard
-import Grid from '/FRONTEND/Grid.js';
-import Tile from '/FRONTEND/Tile.js';
+import Grid from '/assets/Grid.js';
+import Tile from '/assets/Tile.js';
 import {
 	bestScores,
 	createUser,
@@ -12,10 +12,7 @@ import {
 	login,
 	logout,
 	makeRequest,
-} from '/FRONTEND/Users.js';
-
-// const Url = "http://localhost:3000";
-const Url = 'https://purple2048.cyclic.app/';
+} from '/assets/Users.js';
 
 const gameBoard = document.getElementById('game-board');
 
@@ -30,7 +27,7 @@ let yTouch;
 window.addEventListener('load', async function () {
 	if (document.firstElementChild.getAttribute('pag') === 'board') {
 		if (this.localStorage.token === undefined)
-			this.window.location.href = '/FRONTEND/login.html';
+			this.window.location.href = '/assets/login.html';
 		this.window.newGame = newGame;
 		this.window.logout = logout;
 		this.window.bestScores = bestScores;
@@ -49,7 +46,7 @@ window.addEventListener('load', async function () {
 		this.window.login = login;
 		this.window.createUser = createUser;
 		if (this.localStorage.token !== undefined)
-			window.location.href = '/FRONTEND/board.html';
+			window.location.href = '/assets/board.html';
 	}
 });
 
@@ -100,10 +97,10 @@ async function bestScore(index) {
 		let best = await makeRequest(
 			'GET',
 			`/api/users/bestScores?index=${index}`,
-			[
-				{ name: 'x-auth-user', value: localStorage.token },
-				{ name: 'Content-Type', value: 'application/json' },
-			],
+			{
+				'Content-Type': 'application/json',
+				'x-auth-user': localStorage.token,
+			},
 		);
 		best = JSON.parse(best);
 		const board = document.getElementById('bestGame-board');
@@ -122,11 +119,10 @@ async function bestScore(index) {
 }
 
 async function loadGame(index) {
-	let save = await makeRequest('GET', `/api/users/saveGames?index=${index}`, [
-		{ name: 'x-auth-user', value: localStorage.token },
-		{ name: 'Content-Type', value: 'application/json' },
-		{ name: 'index', value: index },
-	]);
+	let save = await makeRequest('GET', `/api/users/saveGames?index=${index}`, {
+		'Content-Type': 'application/json',
+		'x-auth-user': localStorage.token,
+	});
 	save = JSON.parse(save);
 	document.getElementById('gameOver').style.display = 'none';
 	gameBoard.classList.remove('over');
@@ -177,10 +173,10 @@ async function gameOver() {
 		await makeRequest(
 			'PUT',
 			'/api/users/bestScores',
-			[
-				{ name: 'x-auth-user', value: localStorage.token },
-				{ name: 'Content-Type', value: 'application/json' },
-			],
+			{
+				'Content-Type': 'application/json',
+				'x-auth-user': localStorage.token,
+			},
 			bestSave,
 		);
 	} catch (e) {
@@ -214,10 +210,10 @@ async function saveGame(saveInput = false) {
 			const action = await makeRequest(
 				'PUT',
 				'/api/users/saveGames',
-				[
-					{ name: 'x-auth-user', value: localStorage.token },
-					{ name: 'Content-Type', value: 'application/json' },
-				],
+				{
+					'Content-Type': 'application/json',
+					'x-auth-user': localStorage.token,
+				},
 				gameSave,
 			);
 			alert(action);

@@ -1,5 +1,5 @@
 // cSpell:ignore vmin
-import Tile from './Tile.js';
+import Tile from '/assets/Tile.js';
 
 const GRID_SIZE = 4;
 const CELL_SIZE = 14.5;
