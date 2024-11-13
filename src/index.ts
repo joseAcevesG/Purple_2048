@@ -14,12 +14,6 @@ app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, '../public')));
 app.use(routes);
 
-if (process.env.NODE_ENV === 'dev') {
-	app.use('/assets', express.static(path.join(__dirname, '../public')));
-} else {
-	app.use('/assets', express.static(path.join(__dirname, 'public')));
-}
-
 app.listen(port, () => {
 	if (process.env.NODE_ENV === 'dev') {
 		console.log(`Server running on port ${port}`);
