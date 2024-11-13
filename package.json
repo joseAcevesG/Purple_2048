@@ -6,13 +6,13 @@
 		"start": "cross-env NODE_ENV=production node dist/src/index.js",
 		"dev": "cross-env NODE_ENV=dev nodemon src/index.ts",
 		"local": "cross-env NODE_ENV=local ts-node src/index.ts",
-		"build": "rimraf dist && tsc",
-		"format": "biome format --write src",
-		"format:detailed": "biome format src",
-		"lint": "biome lint --write src",
-		"lint:detailed": "biome lint src",
-		"check": "biome check --write src",
-		"check:detailed": "biome check src"
+		"build": "rimraf dist && tsc && cpx 'public/**/*' dist/public",
+		"format": "biome format --write public src",
+		"format:detailed": "biome format public src",
+		"lint": "biome lint --write public src",
+		"lint:detailed": "biome lint public src",
+		"check": "biome check --write public src",
+		"check:detailed": "biome check public src"
 	},
 	"repository": {
 		"type": "git",
@@ -49,6 +49,7 @@
 		"@types/mongoose": "5.11.97",
 		"@types/node": "20.11.28",
 		"@types/sequelize": "^4.28.20",
+		"cpx": "^1.5.0",
 		"nodemon": "^2.0.20",
 		"rimraf": "^5.0.5",
 		"ts-node": "10.9.2",
