@@ -8,6 +8,21 @@ export interface User {
 	bests?: BestsItem[];
 	leader?: number;
 }
+
+export interface UserRds {
+	id?: string;
+	email: string;
+	password: string;
+	username: string;
+	saveBoards?: string;
+}
+
+export interface UserDyn {
+	id?: string;
+	bests?: BestsItem[];
+	leader?: number;
+}
+
 interface SaveBoardsItem {
 	name: string;
 	board: BoardItem[];

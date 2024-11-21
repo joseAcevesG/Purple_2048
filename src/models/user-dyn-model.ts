@@ -6,11 +6,11 @@ import {
 	PutCommand,
 	PutCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
-import { User } from '../types';
+import { UserDyn } from '../types';
 import docClient from '../utils/dynamo';
 
 class UserDynModel {
-	saveUser(user: User): Promise<PutCommandOutput> {
+	saveUser(user: UserDyn): Promise<PutCommandOutput> {
 		const params = { TableName: process.env.DYNAMODB_TABLE_NAME, Item: user };
 
 		return docClient.send(new PutCommand(params));
@@ -26,6 +26,24 @@ class UserDynModel {
 		const params = { TableName: process.env.DYNAMODB_TABLE_NAME, Key: { id } };
 
 		return docClient.send(new DeleteCommand(params));
+	}
+
+	getLeaders(): Promise<GetCommandOutput> {
+		const params = {
+			TableName: process.env.DYNAMODB_TABLE_NAME,
+			Key: { id: 'leaderBoard' },
+		};
+
+		return docClient.send(new GetCommand(params));
+	}
+
+	saveLeaders(leaders: string[]): Promise<PutCommandOutput> {
+		const params = {
+			TableName: process.env.DYNAMODB_TABLE_NAME,
+			Item: { id: 'leaderBoard', leaders },
+		};
+
+		return docClient.send(new PutCommand(params));
 	}
 }
 
