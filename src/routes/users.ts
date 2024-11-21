@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 const router = Router();
 
-//GET para obtener todos los usuarios
+//GET user info
 router.get('/', (req, res) => {});
 
 //GET para mostrar los mejores boards de un usuario

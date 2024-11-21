@@ -7,7 +7,7 @@ import UnauthorizedError from '../utils/UnauthorizedError';
 import { decode } from '../utils/create-token';
 
 export default (req: RequestUser, res: Response, next: NextFunction) => {
-	const token: string = (req as Request).headers.token as string;
+	const token: string = (req as Request).headers['x-auth-user'] as string;
 	if (!token) {
 		res.status(ResponseStatus.UNAUTHORIZED).send('Unauthorized');
 		return;

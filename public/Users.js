@@ -96,18 +96,14 @@ async function createUser() {
 			password: document.getElementById('newPassword').value,
 		};
 
-		let newUser = await makeRequest(
+		const token = await makeRequest(
 			'POST',
 			'/api/users',
 			{ 'Content-Type': 'application/json' },
 			user,
 		);
-		newUser = JSON.parse(newUser);
-		const log = {
-			username: newUser.username,
-			password: document.getElementById('newPassword').value,
-		};
-		putLogin(log);
+		localStorage.setItem('token', token);
+		window.location.href = '/assets/board.html';
 	} catch (e) {
 		console.log(e);
 		alert(`${e.status}: ${e.response}`);
