@@ -5,9 +5,11 @@ const GRID_SIZE = 4;
 const CELL_SIZE = 14.5;
 const CELL_GAP = 2;
 
+// Clase que representa la cuadrícula del juego.
 export default class Grid {
 	#cells;
 
+	//Crea una instancia de la clase Grid.
 	constructor(gridElement, data = undefined) {
 		gridElement.style.setProperty('--grid-size', GRID_SIZE);
 		gridElement.style.setProperty('--cell-size', `${CELL_SIZE}vmin`);
@@ -29,6 +31,7 @@ export default class Grid {
 		}
 	}
 
+	// Obtiene una representación de la cuadrícula con las posiciones y valores de las fichas.
 	get grid() {
 		const tiles = [];
 		for (const row of this.#cells) {
@@ -66,6 +69,7 @@ export default class Grid {
 		return tmpCells;
 	}
 
+	// Funcion que vacia las celdas de la cuadricula.
 	get #emptyCells() {
 		let tmpCells = new Array(GRID_SIZE);
 		for (let i = 0; i < GRID_SIZE; i++) {
@@ -75,6 +79,7 @@ export default class Grid {
 		return tmpCells;
 	}
 
+	// Funcion que agrega una nueva ficha a la cuadricula.
 	randomEmptyCell() {
 		const indexX = Math.floor(Math.random() * this.#emptyCells.length);
 		const indexY = Math.floor(Math.random() * this.#emptyCells[indexX].length);
@@ -82,6 +87,7 @@ export default class Grid {
 	}
 }
 
+// Clase que representa una celda de la cuadrícula.
 class Cell {
 	#cellElement;
 	#x;
@@ -125,6 +131,7 @@ class Cell {
 		this.#mergeTile.y = this.#y;
 	}
 
+	// Funcion que verifica si una celda puede aceptar una ficha.
 	canAccept(tile) {
 		return (
 			this.tile == null ||
@@ -132,6 +139,7 @@ class Cell {
 		);
 	}
 
+	// Funcion que une dos fichas en una celda.
 	mergeTiles(score) {
 		if (this.tile == null || this.mergeTile == null) return score;
 		this.tile.value = this.tile.value + this.mergeTile.value;
@@ -144,6 +152,7 @@ class Cell {
 	}
 }
 
+// Funcion que crea los elementos de las celdas de la cuadricula.
 function createCellElements(gridElement) {
 	const cells = new Array(GRID_SIZE);
 	for (let i = 0; i < GRID_SIZE; i++) {
