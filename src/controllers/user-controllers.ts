@@ -66,11 +66,15 @@ class UsersController {
 	}
 
 	updateUser(req: RequestUser, res: Response) {
-		if (hashPassword(req.body.oldPassword) !== req.user.password) {
+		if (
+			req.body.password &&
+			hashPassword(req.body.oldPassword) !== req.user.password
+		) {
 			res.status(ResponseStatus.UNAUTHORIZED).send('password is incorrect');
 			return;
 		}
 		const data: User = {
+			id: req.user.id,
 			email: req.body.email || req.user.email,
 			password: hashPassword(req.body.password) || req.user.password,
 			username: req.body.username || req.user.username,
