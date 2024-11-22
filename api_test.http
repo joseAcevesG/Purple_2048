@@ -1,4 +1,7 @@
-POST http://localhost:3000/api/users HTTP/1.1
+@base_url = http://localhost:3000
+@token = 
+
+POST {{base_url}}/api/users HTTP/1.1
 content-Type: application/json
 
 {
@@ -8,7 +11,7 @@ content-Type: application/json
 }
 
 ###
-PUT http://localhost:3000/api/login
+PUT {{base_url}}/api/login
 content-Type: application/json
 
 {
@@ -17,28 +20,28 @@ content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/api/users
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users
+x-auth-user: {{token}}
 
 ###
-GET http://localhost:3000/api/users/bestScores
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users/bestScores
+x-auth-user: {{token}}
 
 ###
-GET http://localhost:3000/api/users/saveGames
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users/saveGames
+x-auth-user: {{token}}
 
 ###
-GET http://localhost:3000/api/users/leaders
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users/leaders
+x-auth-user: {{token}}
 
 ###
-GET http://localhost:3000/api/users/saveGames?index=0
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users/saveGames?index=0
+x-auth-user: {{token}}
 
 ###
-GET http://localhost:3000/api/users/bestScores?index=0
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+GET {{base_url}}/api/users/bestScores?index=0
+x-auth-user: {{token}}
 
 
     # "email":"jose.aceves@gmail.com",
