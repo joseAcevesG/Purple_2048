@@ -9,13 +9,33 @@ const dummyUser: User = {
 
 class userModel {
   findByEmail(email: string) {
-    return new Promise<User>((resolve, reject) => {
-      if (email === dummyUser.email) {
-        resolve(dummyUser);
-      } else {
-        reject('User not found');
-      }
-    });
+    return rdsModel
+      .findOne({ where: { email } })
+      .then((user) => {
+        console.log(user);
+        return dynUser
+          .getUser(user.id)
+          .then((response) => {
+            return {
+              id: user.id,
+              email: user.email,
+              password: user.password,
+              username: user.username,
+              saveBoards: user.saveBoards,
+              bests: response.Item.bests,
+              leader: response.Item.leader,
+            };
+          })
+          .catch((err) => {
+            console.error(err);
+            throw new Error('Error updating user');
+          });
+      })
+
+      .catch((err) => {
+        console.error(err);
+        throw new Error('Error updating user');
+      });
   }
 
   create(data: User) {

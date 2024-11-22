@@ -1,9 +1,10 @@
 import { Router } from 'express';
+import userControllers from '../controllers/user-controllers';
 
 const router = Router();
 
 //GET user info
-router.get('/', (req, res) => {});
+router.get('/', userControllers.getUser);
 
 //GET para mostrar los mejores boards de un usuario
 router.get('/bestScores', (req, res) => {});

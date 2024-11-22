@@ -1,4 +1,3 @@
-// models/User.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import { SaveBoardsItem, User } from '../types';
 import sequelize from './rds-config';
@@ -6,31 +5,25 @@ import sequelize from './rds-config';
 // Definimos una interfaz para los atributos opcionales al crear un nuevo usuario
 interface UserCreationAttributes extends Optional<User, 'id' | 'saveBoards' | 'leader'> {}
 
-// Creamos la clase del modelo de usuario extendiendo Model
-class UserModel extends Model<User, UserCreationAttributes> implements User {
-  public id!: string;
-  public email!: string;
-  public password!: string;
-  public username!: string;
-  public saveBoards?: SaveBoardsItem[];
-  public leader?: number;
-  public token?: string;
-
-  // Timestamps automáticos
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+class UserModel extends Model<User, UserCreationAttributes> {
+  id!: string; // Campo obligatorio
+  email!: string;
+  password!: string;
+  username!: string;
+  saveBoards?: SaveBoardsItem[]; // Campo opcional
+  leader?: number; // Campo opcional
 }
 
-// Inicializamos el modelo
 UserModel.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.STRING,
       primaryKey: true,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
@@ -41,14 +34,14 @@ UserModel.init(
       allowNull: false,
     },
     saveBoards: {
-      type: DataTypes.JSON, // Usamos JSON si el array puede contener estructuras complejas
+      type: DataTypes.JSON,
       allowNull: true,
     },
   },
   {
-    sequelize, // La instancia de conexión
+    sequelize,
     tableName: 'users',
-    timestamps: true, // Esto agregará createdAt y updatedAt automáticamente
+    timestamps: true,
   }
 );
 

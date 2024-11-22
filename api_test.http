@@ -1,5 +1,31 @@
-@base_url = http://localhost:3000
+# @base_url = http://localhost:3001
+@base_url = http://3.95.245.34:3001
 @token = 
+
+GET {{base_url}}
+
+###
+
+POST {{base_url}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "d@gmail.com",
+    "username": "alda",
+    "password": "123"
+}
+
+###
+
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "d@gmail.com",
+    "password": "123"
+}
+
+###
 
 POST {{base_url}}/api/users HTTP/1.1
 content-Type: application/json
