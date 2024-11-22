@@ -1,11 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-	DeleteCommand,
-	DynamoDBDocumentClient,
-	GetCommand,
-	PutCommand,
-	ScanCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 const dbClient = new DynamoDBClient({
 	region: process.env.AWS_REGION,
