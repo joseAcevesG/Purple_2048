@@ -12,18 +12,24 @@ class userModel {
     return rdsModel
       .findOne({ where: { email } })
       .then((user) => {
-        console.log(user);
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        // Usa el método .get() para acceder a los datos del modelo
+        const userData = user.get() as UserRds;
+
         return dynUser
-          .getUser(user.id)
+          .getUser(userData.id)
           .then((response) => {
             return {
-              id: user.id,
-              email: user.email,
-              password: user.password,
-              username: user.username,
-              saveBoards: user.saveBoards,
-              bests: response.Item.bests,
-              leader: response.Item.leader,
+              id: userData.id,
+              email: userData.email,
+              password: userData.password,
+              username: userData.username,
+              saveBoards: userData.saveBoards,
+              bests: response.Item?.bests,
+              leader: response.Item?.leader,
             };
           })
           .catch((err) => {
@@ -31,13 +37,11 @@ class userModel {
             throw new Error('Error updating user');
           });
       })
-
       .catch((err) => {
         console.error(err);
         throw new Error('Error updating user');
       });
   }
-
   create(data: User) {
     const dynData: UserDyn = {
       id: data.id,
