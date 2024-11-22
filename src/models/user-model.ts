@@ -1,6 +1,8 @@
 import { User, UserDyn, UserRds } from '../types';
 import dynUser from './user-dyn-model';
 import rdsModel from './user-rds-model';
+import BadRequestError from '../utils/BadRequestError';
+import NotFoundError from '../utils/NotFoundError';
 const dummyUser: User = {
   email: 'test@test',
   password: 'test',
@@ -33,13 +35,17 @@ class userModel {
             };
           })
           .catch((err) => {
-            console.error(err);
-            throw new Error('Error updating user');
+            // console.error(err);
+            throw new Error('Error finding user');
           });
       })
       .catch((err) => {
-        console.error(err);
-        throw new Error('Error updating user');
+        console.log(err.message);
+        if (err.message === 'User not found') {
+          throw new NotFoundError('Not Found');
+        }
+        // console.error(err);
+        throw new Error('Error finding user');
       });
   }
   create(data: User) {
@@ -86,9 +92,12 @@ class userModel {
     const dynPromise = dynUser.saveUser(dynData);
     const rsdPromise = rdsModel.update(rdsData, { where: { id: data.id } });
 
-    return Promise.all([dynPromise])
+    return Promise.all([dynPromise, rsdPromise])
       .then(() => data)
       .catch((err) => {
+        if (err.parent.errno === 1062) {
+          throw new BadRequestError('Bad request');
+        }
         console.error(err);
         throw new Error('Error updating user');
       });
@@ -98,7 +107,7 @@ class userModel {
     const dynPromise = dynUser.deleteUser(id);
     const rdsPromise = rdsModel.destroy({ where: { id: id } });
 
-    return Promise.all([dynPromise])
+    return Promise.all([dynPromise, rdsPromise])
       .then(() => {})
       .catch((err) => {
         console.error(err);

@@ -1,6 +1,6 @@
 @base_url = http://localhost:3001
 # @base_url = http://3.95.245.34:3001
-@token = 
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWxkYSIsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJpYXQiOjE3MzIzMTUzODJ9.jYAWu0Z6yq8bcz5hG7CVSwKcGWMre__sDb1LElYl5OE
 
 GET {{base_url}}
 
@@ -10,8 +10,8 @@ POST {{base_url}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "r@gmail.com",
-    "username": "alda",
+    "email": "a@gmail.com",
+    "username": "ald",
     "password": "123"
 }
 
@@ -21,61 +21,42 @@ POST {{base_url}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "r@gmail.com",
+    "email": "fasdf@gmail.com",
     "password": "123"
 }
 
 ###
 
-POST {{base_url}}/api/users HTTP/1.1
-content-Type: application/json
+PUT {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
 {
-    "email":"jose.aceves@gmail.com",
-    "password":"Jose123",
-    "username":"joseA"
+    "email": "a@gmail.com",
+    "username": "al",
+    "password": "12",
+    "oldPassword": "123"
+
 }
 
 ###
-PUT {{base_url}}/api/login
-content-Type: application/json
+
+PUT {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
 {
-    "password":"Jose123",
-    "username":"joseA"
+    "email": "b@gmail.com",
+    "username": "al",
+    "oldPassword": "12"
+
 }
 
 ###
-GET {{base_url}}/api/users
-x-auth-user: {{token}}
-
-###
-GET {{base_url}}/api/users/bestScores
-x-auth-user: {{token}}
-
-###
-GET {{base_url}}/api/users/saveGames
-x-auth-user: {{token}}
-
-###
-GET {{base_url}}/api/users/leaders
-x-auth-user: {{token}}
-
-###
-GET {{base_url}}/api/users/saveGames?index=0
-x-auth-user: {{token}}
-
-###
-GET {{base_url}}/api/users/bestScores?index=0
-x-auth-user: {{token}}
 
 
-    # "email":"jose.aceves@gmail.com",
-    # "password":"Jose123",
-    # "username":"joseA"
-    # MP3D9lJfLC-6382aabe652642d0dc4a9578
+DELETE {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
-    # "email":"HectorAinferno@gmail.com",
-    # "password":"hectorin123A",
-    # "username":"hectorininferno"
-    # un0izBMs9k-6382aaecbd62980b0e36459c
+
