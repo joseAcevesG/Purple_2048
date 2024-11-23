@@ -2,9 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { SaveBoardsItem, User } from '../types';
 import sequelize from './rds-config';
 
-// Define la interfaz para atributos opcionales
-interface UserCreationAttributes
-	extends Optional<User, 'id' | 'saveBoards' | 'leader'> {}
+interface UserCreationAttributes extends Optional<User, 'id' | 'saveBoards'> {}
 
 // Clase UserModel con Sequelize y tipado
 class UserModel extends Model<User, UserCreationAttributes> {}
