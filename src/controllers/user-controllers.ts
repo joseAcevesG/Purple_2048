@@ -1,8 +1,9 @@
 // cspell: ignore uuidv
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import dynModel from '../models/user-dyn-model';
 import userModel from '../models/user-model';
-import { RequestUser, User } from '../types';
+import { RequestUser, User, UserDyn, leaderBoardMember } from '../types';
 import ResponseStatus from '../types/response-codes';
 import NotFoundError from '../utils/NotFoundError';
 import UnauthorizedError from '../utils/UnauthorizedError';
@@ -18,7 +19,6 @@ class UsersController {
 			username: req.body.username,
 			saveBoards: [],
 			bests: [],
-			leader: 0,
 		};
 
 		userModel
@@ -80,7 +80,6 @@ class UsersController {
 			username: req.body.username || req.user.username,
 			saveBoards: req.body.saveBoards || req.user.saveBoards,
 			bests: req.body.bests || req.user.bests,
-			leader: req.body.leader || req.user.leader,
 		};
 
 		userModel
@@ -115,6 +114,11 @@ class UsersController {
 	}
 
 	updateBestScores(req: RequestUser, res: Response) {
+		if (req.user.bests[req.user.bests.length - 1].score > req.body.score) {
+			res.status(ResponseStatus.SUCCESS).send('Score not high enough');
+			return;
+		}
+
 		let i = 0;
 		for (i = 0; i < req.user.bests.length; i++) {
 			if (req.body.score > req.user.bests[i].score) {
@@ -123,6 +127,98 @@ class UsersController {
 		}
 		req.user.bests.splice(i, 0, req.body);
 		req.user.bests = req.user.bests.slice(0, 5);
+
+		const data: UserDyn = {
+			id: req.user.id,
+			bests: req.user.bests,
+		};
+
+		dynModel
+			.saveUser(data)
+			.then(() => {
+				return dynModel.getLeaders();
+			})
+			.then((response) => {
+				const leaders = response.Item as leaderBoardMember[];
+				if (leaders[leaders.length - 1].score > req.body.score) {
+					res.status(ResponseStatus.SUCCESS).send('Score not high enough');
+					return;
+				}
+				for (i = 0; i < leaders.length; i++) {
+					if (leaders[i].score > req.body.score) {
+						break;
+					}
+				}
+				leaders.splice(i, 0, { id: req.user.id, score: req.body.score });
+				const newLeaders = leaders.slice(0, 5);
+				return dynModel.saveLeaders(newLeaders);
+			})
+			.catch((err: Error) => {
+				console.error(err);
+				res
+					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
+					.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
+			});
+	}
+
+	saveBoard(req: RequestUser, res: Response) {
+		const index = req.user.saveBoards.findIndex(
+			(board) => board.name === req.body.name,
+		);
+
+		if (index !== -1) {
+			req.user.saveBoards.splice(index, 1);
+		}
+
+		if (req.user.saveBoards.length === 5) {
+			req.user.saveBoards.pop();
+		}
+
+		req.user.saveBoards.unshift({
+			name: req.body.name,
+			board: req.body.board,
+			score: req.body.score,
+		});
+
+		const data: User = {
+			id: req.user.id,
+			email: req.user.email,
+			password: req.user.password,
+			username: req.user.username,
+			saveBoards: req.user.saveBoards,
+			bests: req.user.bests,
+		};
+
+		userModel
+			.update(data)
+			.then(() => {
+				res.status(ResponseStatus.SUCCESS).send('Board saved');
+			})
+			.catch((err: Error) => {
+				console.error(err);
+				res
+					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
+					.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
+			});
+	}
+
+	getSaveBoards(req: RequestUser, res: Response) {
+		res.status(ResponseStatus.SUCCESS).send(req.user.saveBoards);
+	}
+
+	getLeaders(req: Request, res: Response) {
+		dynModel
+			.getLeaders()
+			.then((response) => {
+				const leaders = response.Item as leaderBoardMember[];
+				res.status(ResponseStatus.SUCCESS).send(leaders);
+			})
+			.catch((err: Error) => {
+				console.error(err);
+				res
+					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
+					.send(ResponseStatus.INTERNAL_SERVER_ERROR_MESSAGE);
+			});
 	}
 }
 

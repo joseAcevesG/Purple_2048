@@ -6,7 +6,7 @@ import {
 	PutCommand,
 	PutCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
-import { UserDyn } from '../types';
+import { UserDyn, leaderBoardMember } from '../types';
 import docClient from '../utils/dynamo';
 
 class UserDynModel {
@@ -37,7 +37,7 @@ class UserDynModel {
 		return docClient.send(new GetCommand(params));
 	}
 
-	saveLeaders(leaders: string[]): Promise<PutCommandOutput> {
+	saveLeaders(leaders: leaderBoardMember[]): Promise<PutCommandOutput> {
 		const params = {
 			TableName: process.env.DYNAMODB_TABLE_NAME,
 			Item: { id: 'leaderBoard', leaders },
