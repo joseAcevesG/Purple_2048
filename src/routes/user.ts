@@ -3,27 +3,28 @@ import userControllers from '../controllers/user-controllers';
 
 const router = Router();
 
-//GET user info
+// GET user info
 router.get('/', userControllers.getUser);
 
-//PUT para modificar usuarios
+// PUT for modifying users
 router.put('/', userControllers.updateUser);
-//DELETE para borrar un usuario
+
+// DELETE for deleting a user
 router.delete('/', userControllers.deleteUser);
 
-//GET para mostrar los mejores boards de un usuario
-router.get('/bestScores', (req, res) => {});
+// GET for showing the best boards of a user
+router.get('/bestScores', userControllers.getBestScores);
 
-//PUT para modificar los mejores boards de un usuario
-router.put('/bestScores', (req, res) => {});
+// PUT for modifying the best boards of a user
+router.put('/bestScores', userControllers.updateBestScores);
 
-//GET para obtener los juegos guardados de un usuario
-router.get('saveGames', (req, res) => {});
+// GET to get the saved games of a user
+router.get('saveGames', userControllers.getSaveBoards);
 
-//PUT para modificar los juegos guardados de un usuario
-router.put('saveGames', (req, res) => {});
+// PUT to save a game of a user
+router.put('saveGames', userControllers.saveBoard);
 
-//GET para obtener los usuarios que han jugado
-router.get('leaders', (req, res) => {});
+// GET to get the top 5 leaders
+router.get('leaders', userControllers.getLeaders);
 
 export default router;

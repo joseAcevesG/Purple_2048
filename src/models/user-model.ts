@@ -60,12 +60,16 @@ class userModel {
 			saveBoards: data.saveBoards,
 		};
 
-		const dynPromise = dynUser.saveUser(dynData);
-		const rdsPromise = rdsModel.create(rdsData);
-
-		return Promise.all([dynPromise, rdsPromise])
+		return rdsModel
+			.create(rdsData)
+			.then(() => {
+				return dynUser.saveUser(dynData);
+			})
 			.then(() => data)
 			.catch((err) => {
+				if (err.parent.errno === 1062) {
+					throw new BadRequestError('Bad request');
+				}
 				console.error(err);
 				throw new Error('Error creating user');
 			});

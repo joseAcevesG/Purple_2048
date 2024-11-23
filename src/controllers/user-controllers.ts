@@ -5,6 +5,7 @@ import dynModel from '../models/user-dyn-model';
 import userModel from '../models/user-model';
 import { RequestUser, User, UserDyn, leaderBoardMember } from '../types';
 import ResponseStatus from '../types/response-codes';
+import BadRequestError from '../utils/BadRequestError';
 import NotFoundError from '../utils/NotFoundError';
 import UnauthorizedError from '../utils/UnauthorizedError';
 import { code as createToken } from '../utils/create-token';
@@ -29,6 +30,10 @@ class UsersController {
 				});
 			})
 			.catch((err: Error) => {
+				if (err instanceof BadRequestError) {
+					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					return;
+				}
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
@@ -52,6 +57,16 @@ class UsersController {
 					res
 						.status(ResponseStatus.UNAUTHORIZED)
 						.send('password or email is incorrect');
+					return;
+				}
+				if (err instanceof NotFoundError) {
+					res
+						.status(ResponseStatus.NOT_FOUND)
+						.send('password or email is incorrect');
+					return;
+				}
+				if (err instanceof BadRequestError) {
+					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
 					return;
 				}
 				console.error(err);
@@ -88,6 +103,10 @@ class UsersController {
 				res.status(ResponseStatus.SUCCESS).send(user);
 			})
 			.catch((err: Error) => {
+				if (err instanceof BadRequestError) {
+					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					return;
+				}
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
@@ -102,6 +121,10 @@ class UsersController {
 				res.status(ResponseStatus.SUCCESS).send('User deleted');
 			})
 			.catch((err: Error) => {
+				if (err instanceof NotFoundError) {
+					res.status(ResponseStatus.SUCCESS).send('User deleted');
+					return;
+				}
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
@@ -195,6 +218,10 @@ class UsersController {
 				res.status(ResponseStatus.SUCCESS).send('Board saved');
 			})
 			.catch((err: Error) => {
+				if (err instanceof BadRequestError) {
+					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					return;
+				}
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)

@@ -1,11 +1,11 @@
 @base_url = http://localhost:3001
 # @base_url = http://3.95.245.34:3001
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWxkYSIsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJpYXQiOjE3MzIzMTUzODJ9.jYAWu0Z6yq8bcz5hG7CVSwKcGWMre__sDb1LElYl5OE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWxkIiwiZW1haWwiOiJhQGdtYWlsLmNvbSIsImlhdCI6MTczMjMyMTcyMX0.R6jxzqOdYnnwVKD3Wo8aqSgMildKrbPjRrGbjmJCahI
 
+### test api ###
 GET {{base_url}}
 
-###
-
+### register user ###
 POST {{base_url}}/auth/register
 Content-Type: application/json
 
@@ -15,18 +15,21 @@ Content-Type: application/json
     "password": "123"
 }
 
-###
-
+### login user ###
 POST {{base_url}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "fasdf@gmail.com",
+    "email": "a@gmail.com",
     "password": "123"
 }
 
-###
+### get user ###
+GET {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
+### update user ###
 PUT {{base_url}}/user
 Content-Type: application/json
 x-auth-user:  {{token}}
@@ -39,22 +42,7 @@ x-auth-user:  {{token}}
 
 }
 
-###
-
-PUT {{base_url}}/user
-Content-Type: application/json
-x-auth-user:  {{token}}
-
-{
-    "email": "b@gmail.com",
-    "username": "al",
-    "oldPassword": "12"
-
-}
-
-###
-
-
+### logout user ###
 DELETE {{base_url}}/user
 Content-Type: application/json
 x-auth-user:  {{token}}
