@@ -1,4 +1,6 @@
 import { User, UserDyn, UserRds } from '../types';
+import BadRequestError from '../utils/BadRequestError';
+import NotFoundError from '../utils/NotFoundError';
 import dynUser from './user-dyn-model';
 import rdsModel from './user-rds-model';
 const dummyUser: User = {
@@ -16,7 +18,6 @@ class userModel {
 					throw new Error('User not found');
 				}
 
-				// Usa el método .get() para acceder a los datos del modelo
 				const userData = user.get() as UserRds;
 
 				return dynUser
@@ -29,17 +30,20 @@ class userModel {
 							username: userData.username,
 							saveBoards: userData.saveBoards,
 							bests: response.Item?.bests,
-							leader: response.Item?.leader,
 						};
 					})
 					.catch((err) => {
-						console.error(err);
-						throw new Error('Error updating user');
+						// console.error(err);
+						throw new Error('Error finding user');
 					});
 			})
 			.catch((err) => {
-				console.error(err);
-				throw new Error('Error updating user');
+				console.log(err.message);
+				if (err.message === 'User not found') {
+					throw new NotFoundError('Not Found');
+				}
+				// console.error(err);
+				throw new Error('Error finding user');
 			});
 	}
 	create(data: User) {
@@ -84,9 +88,12 @@ class userModel {
 		const dynPromise = dynUser.saveUser(dynData);
 		const rsdPromise = rdsModel.update(rdsData, { where: { id: data.id } });
 
-		return Promise.all([dynPromise])
+		return Promise.all([dynPromise, rsdPromise])
 			.then(() => data)
 			.catch((err) => {
+				if (err.parent.errno === 1062) {
+					throw new BadRequestError('Bad request');
+				}
 				console.error(err);
 				throw new Error('Error updating user');
 			});
@@ -96,7 +103,7 @@ class userModel {
 		const dynPromise = dynUser.deleteUser(id);
 		const rdsPromise = rdsModel.destroy({ where: { id: id } });
 
-		return Promise.all([dynPromise])
+		return Promise.all([dynPromise, rdsPromise])
 			.then(() => {})
 			.catch((err) => {
 				console.error(err);

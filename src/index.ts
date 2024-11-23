@@ -14,9 +14,9 @@ app.use('/assets', express.static(path.join(__dirname, '../public')));
 app.use(routes);
 
 app.listen(port, () => {
-  if (process.env.NODE_ENV === 'dev') {
-    console.log(`Server running on port ${port}`);
-  } else {
-    console.log('Server running');
-  }
+	if (process.env.NODE_ENV === 'dev') {
+		console.log(`Server running on port ${port}`);
+	} else {
+		console.log('Server running');
+	}
 });
