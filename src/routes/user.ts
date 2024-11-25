@@ -19,12 +19,12 @@ router.get('/bestScores', userControllers.getBestScores);
 router.put('/bestScores', userControllers.updateBestScores);
 
 // GET to get the saved games of a user
-router.get('saveGames', userControllers.getSaveBoards);
+router.get('/saveGames', userControllers.getSaveBoards);
 
 // PUT to save a game of a user
-router.put('saveGames', userControllers.saveBoard);
+router.put('/saveGames', userControllers.saveBoard);
 
 // GET to get the top 5 leaders
-router.get('leaders', userControllers.getLeaders);
+router.get('/leaders', userControllers.getLeaders);
 
 export default router;

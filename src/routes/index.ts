@@ -7,11 +7,11 @@ import user from './user';
 const router = Router();
 
 router.use('/auth', auth);
-// router.use('/', navigate);
+router.use('/', navigate);
 router.use('/user', authMiddleware, user);
 
-router.get('/', (req, res) => {
-	res.send('UWU');
-});
+// router.get('/', (req, res) => {
+// 	res.send('UWU');
+// });
 
 export default router;

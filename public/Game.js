@@ -26,8 +26,7 @@ let yTouch;
 //init page
 window.addEventListener('load', async function () {
 	if (document.firstElementChild.getAttribute('pag') === 'board') {
-		if (this.localStorage.token === undefined)
-			this.window.location.href = '/assets/login.html';
+		if (this.localStorage.token === undefined) this.window.location.href = '/';
 		this.window.newGame = newGame;
 		this.window.logout = logout;
 		this.window.bestScores = bestScores;
@@ -45,8 +44,7 @@ window.addEventListener('load', async function () {
 	} else {
 		this.window.login = login;
 		this.window.createUser = createUser;
-		if (this.localStorage.token !== undefined)
-			window.location.href = '/assets/board.html';
+		if (this.localStorage.token !== undefined) window.location.href = '/game';
 	}
 });
 
@@ -94,14 +92,10 @@ $('#showBoard').on('hidden.bs.modal', () => {
 // Funcion que muestra el tab de los mejores puntajes.
 async function bestScore(index) {
 	try {
-		let best = await makeRequest(
-			'GET',
-			`/api/users/bestScores?index=${index}`,
-			{
-				'Content-Type': 'application/json',
-				'x-auth-user': localStorage.token,
-			},
-		);
+		let best = await makeRequest('GET', `/user/bestScores?index=${index}`, {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		best = JSON.parse(best);
 		const board = document.getElementById('bestGame-board');
 		const children = board.children;
@@ -120,7 +114,7 @@ async function bestScore(index) {
 
 // Funcion que carga un juego guardado.
 async function loadGame(index) {
-	let save = await makeRequest('GET', `/api/users/saveGames?index=${index}`, {
+	let save = await makeRequest('GET', `/user/saveGames?index=${index}`, {
 		'Content-Type': 'application/json',
 		'x-auth-user': localStorage.token,
 	});
@@ -176,7 +170,7 @@ async function gameOver() {
 		// Guardar el mejor puntaje.
 		await makeRequest(
 			'PUT',
-			'/api/users/bestScores',
+			'/user/bestScores',
 			{
 				'Content-Type': 'application/json',
 				'x-auth-user': localStorage.token,
@@ -215,7 +209,7 @@ async function saveGame(saveInput = false) {
 			// Guardar el juego.
 			const action = await makeRequest(
 				'PUT',
-				'/api/users/saveGames',
+				'/user/saveGames',
 				{
 					'Content-Type': 'application/json',
 					'x-auth-user': localStorage.token,

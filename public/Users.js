@@ -82,8 +82,8 @@ function login() {
 
 // Función para cerrar sesión
 function logout() {
-	localStorage.token = undefined;
-	window.location.href = '/assets/login.html';
+	localStorage.removeItem('token');
+	window.location.href = '/';
 }
 
 // Función para crear un nuevo usuario
@@ -104,12 +104,12 @@ async function createUser() {
 
 		const token = await makeRequest(
 			'POST',
-			'/api/users',
+			'/auth/register',
 			{ 'Content-Type': 'application/json' },
 			user,
 		);
 		localStorage.setItem('token', token);
-		window.location.href = '/assets/board.html';
+		window.location.href = '/game';
 	} catch (e) {
 		console.log(e);
 		alert(`${e.status}: ${e.response}`);
@@ -120,13 +120,13 @@ async function createUser() {
 async function putLogin(data) {
 	try {
 		const token = await makeRequest(
-			'PUT',
-			'/api/login',
+			'POST',
+			'/auth/login',
 			{ 'Content-Type': 'application/json' },
 			data,
 		);
-		localStorage.token = token;
-		window.location.href = '/assets/board.html';
+		localStorage.setItem('token', token);
+		window.location.href = '/game';
 	} catch (e) {
 		console.log(e);
 		alert(`${e.status}: ${e.response}`);
@@ -136,7 +136,7 @@ async function putLogin(data) {
 // Función para inicializar los datos del usuario
 async function initData() {
 	try {
-		let user = await makeRequest('GET', '/api/users', {
+		let user = await makeRequest('GET', '/user', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
@@ -215,7 +215,7 @@ async function editUser() {
 
 		const editedUser = await makeRequest(
 			'PUT',
-			'/api/users',
+			'/user',
 			{ 'Content-Type': 'application/json', 'x-auth-user': localStorage.token },
 			body,
 		);
@@ -235,7 +235,7 @@ async function editUser() {
 // Función para eliminar el usuario
 async function deleteUser() {
 	try {
-		await makeRequest('DELETE', '/api/users', {
+		await makeRequest('DELETE', '/user', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
@@ -250,7 +250,7 @@ async function deleteUser() {
 // Función para obtener las mejores puntuaciones
 async function bestScores() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/bestScores', {
+		let bestScores = await makeRequest('GET', '/user/bestScores', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
@@ -288,7 +288,7 @@ async function bestScores() {
 // Función para cargar los juegos guardados
 async function loadGames() {
 	try {
-		let saves = await makeRequest('GET', '/api/users/saveGames', {
+		let saves = await makeRequest('GET', '/user/saveGames', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
@@ -314,7 +314,7 @@ async function loadGames() {
 // Función para obtener el leaderboard
 async function leaderBoard() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/leaders', {
+		let bestScores = await makeRequest('GET', '/user/leaders', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});

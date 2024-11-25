@@ -26,6 +26,7 @@ UserModel.init(
 		username: {
 			type: DataTypes.STRING,
 			allowNull: false,
+			unique: true,
 		},
 		saveBoards: {
 			type: DataTypes.JSON,

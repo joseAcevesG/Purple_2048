@@ -133,7 +133,16 @@ class UsersController {
 	}
 
 	getBestScores(req: RequestUser, res: Response) {
-		res.status(ResponseStatus.SUCCESS).send(req.user.bests);
+		if (!req.query.index) {
+			res.status(ResponseStatus.SUCCESS).send(req.user.bests);
+			return;
+		}
+		const index = Number.parseInt(req.query.index as string, 10);
+		if (index >= req.user.bests.length) {
+			res.status(ResponseStatus.BAD_REQUEST).send('Index out of bounds');
+			return;
+		}
+		res.status(ResponseStatus.SUCCESS).send(req.user.bests[index]);
 	}
 
 	updateBestScores(req: RequestUser, res: Response) {
@@ -230,10 +239,19 @@ class UsersController {
 	}
 
 	getSaveBoards(req: RequestUser, res: Response) {
-		res.status(ResponseStatus.SUCCESS).send(req.user.saveBoards);
+		if (!req.query.index) {
+			res.status(ResponseStatus.SUCCESS).send(req.user.saveBoards);
+			return;
+		}
+		const index = Number.parseInt(req.query.index as string, 10);
+		if (index >= req.user.saveBoards.length) {
+			res.status(ResponseStatus.BAD_REQUEST).send('Index out of bounds');
+			return;
+		}
+		res.status(ResponseStatus.SUCCESS).send(req.user.saveBoards[index]);
 	}
 
-	getLeaders(req: Request, res: Response) {
+	getLeaders(req: RequestUser, res: Response) {
 		dynModel
 			.getLeaders()
 			.then((response) => {
