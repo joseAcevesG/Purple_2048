@@ -43,7 +43,7 @@ class UsersController {
 
 	logIn(req: Request, res: Response) {
 		userModel
-			.findByEmail(req.body.email)
+			.findByUsername(req.body.username)
 			.then((user: User) => {
 				if (hashPassword(req.body.password) !== user.password) {
 					throw new UnauthorizedError('Unauthorized');
@@ -118,7 +118,7 @@ class UsersController {
 		userModel
 			.delete(req.user.id)
 			.then(() => {
-				res.status(ResponseStatus.SUCCESS).send('User deleted');
+				res.status(ResponseStatus.SUCCESS).send({ message: 'User deleted' });
 			})
 			.catch((err: Error) => {
 				if (err instanceof NotFoundError) {
@@ -224,7 +224,7 @@ class UsersController {
 		userModel
 			.update(data)
 			.then(() => {
-				res.status(ResponseStatus.SUCCESS).send('Board saved');
+				res.status(ResponseStatus.SUCCESS).send({ message: 'Board saved' });
 			})
 			.catch((err: Error) => {
 				if (err instanceof BadRequestError) {

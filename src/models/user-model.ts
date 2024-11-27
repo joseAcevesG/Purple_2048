@@ -10,9 +10,9 @@ const dummyUser: User = {
 };
 
 class userModel {
-	findByEmail(email: string) {
+	findByUsername(username: string) {
 		return rdsModel
-			.findOne({ where: { email } })
+			.findOne({ where: { username } })
 			.then((user) => {
 				if (!user) {
 					throw new Error('User not found');
@@ -33,16 +33,15 @@ class userModel {
 						};
 					})
 					.catch((err) => {
-						// console.error(err);
+						console.error(err);
 						throw new Error('Error finding user');
 					});
 			})
 			.catch((err) => {
-				console.log(err.message);
+				console.error(err);
 				if (err.message === 'User not found') {
 					throw new NotFoundError('Not Found');
 				}
-				// console.error(err);
 				throw new Error('Error finding user');
 			});
 	}
