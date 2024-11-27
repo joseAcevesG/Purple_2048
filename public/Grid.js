@@ -148,7 +148,7 @@ class Cell {
 
 		this.mergeTile.remove();
 		this.mergeTile = null;
-		return score;
+		return newScore;
 	}
 }
 
