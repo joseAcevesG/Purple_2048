@@ -101,14 +101,13 @@ async function createUser() {
 			email: document.getElementById('newEmail').value,
 			password: document.getElementById('newPassword').value,
 		};
-
 		const token = await makeRequest(
 			'POST',
 			'/auth/register',
 			{ 'Content-Type': 'application/json' },
 			user,
 		);
-		localStorage.setItem('token', token);
+		localStorage.setItem('token', token.token);
 		window.location.href = '/game';
 	} catch (e) {
 		console.log(e);
@@ -125,7 +124,7 @@ async function putLogin(data) {
 			{ 'Content-Type': 'application/json' },
 			data,
 		);
-		localStorage.setItem('token', token);
+		localStorage.setItem('token', token.token);
 		window.location.href = '/game';
 	} catch (e) {
 		console.log(e);
@@ -154,6 +153,11 @@ async function initData() {
 		return best;
 	} catch (e) {
 		console.log(e);
+		if (e.status === 401) {
+			alert('Token expired');
+			logout();
+			return;
+		}
 		alert(`${e.status}: ${e.response}`);
 	}
 }
