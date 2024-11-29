@@ -22,7 +22,7 @@ export interface UserDyn {
 }
 
 export interface leaderBoardMember {
-	id: string;
+	username: string;
 	score: number;
 }
 

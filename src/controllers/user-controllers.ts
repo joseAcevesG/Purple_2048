@@ -88,10 +88,14 @@ class UsersController {
 			res.status(ResponseStatus.UNAUTHORIZED).send('password is incorrect');
 			return;
 		}
+		const password = req.body.password
+			? hashPassword(req.body.password)
+			: req.user.password;
+
 		const data: User = {
 			id: req.user.id,
 			email: req.body.email || req.user.email,
-			password: hashPassword(req.body.password) || req.user.password,
+			password: password,
 			username: req.body.username || req.user.username,
 			saveBoards: req.body.saveBoards || req.user.saveBoards,
 			bests: req.body.bests || req.user.bests,
@@ -146,7 +150,10 @@ class UsersController {
 	}
 
 	updateBestScores(req: RequestUser, res: Response) {
-		if (req.user.bests[req.user.bests.length - 1].score > req.body.score) {
+		if (
+			req.user.bests.length !== 0 &&
+			req.user.bests[req.user.bests.length - 1].score > req.body.score
+		) {
 			res.status(ResponseStatus.SUCCESS).send('Score not high enough');
 			return;
 		}
@@ -171,8 +178,12 @@ class UsersController {
 				return dynModel.getLeaders();
 			})
 			.then((response) => {
-				const leaders = response.Item as leaderBoardMember[];
-				if (leaders[leaders.length - 1].score > req.body.score) {
+				const item = response.Item;
+				const leaders = (item?.leaders ?? []) as leaderBoardMember[];
+				if (
+					leaders.length !== 0 &&
+					leaders[leaders.length - 1].score > req.body.score
+				) {
 					res.status(ResponseStatus.SUCCESS).send('Score not high enough');
 					return;
 				}
@@ -181,9 +192,15 @@ class UsersController {
 						break;
 					}
 				}
-				leaders.splice(i, 0, { id: req.user.id, score: req.body.score });
+				leaders.splice(i, 0, {
+					username: req.user.username,
+					score: req.body.score,
+				});
 				const newLeaders = leaders.slice(0, 5);
 				return dynModel.saveLeaders(newLeaders);
+			})
+			.then(() => {
+				res.status(ResponseStatus.SUCCESS).send({ message: 'Score saved' });
 			})
 			.catch((err: Error) => {
 				console.error(err);
@@ -255,7 +272,8 @@ class UsersController {
 		dynModel
 			.getLeaders()
 			.then((response) => {
-				const leaders = response.Item as leaderBoardMember[];
+				const item = response.Item;
+				const leaders = (item?.leaders ?? []) as leaderBoardMember[];
 				res.status(ResponseStatus.SUCCESS).send(leaders);
 			})
 			.catch((err: Error) => {
