@@ -1,52 +1,99 @@
-POST http://localhost:3000/api/users HTTP/1.1
-content-Type: application/json
+@base_url = http://localhost:3001
+# @base_url = http://3.95.245.34:3001
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdCIsImVtYWlsIjoidGVzdDFAdGVzdCIsImlhdCI6MTczMjg2MDU2NH0.2i3Ku5SInCt1K4UzURpkDBPtVzCKMFFv7SpfZYAKLG4
+
+### test api ###
+GET {{base_url}}
+
+### register user ###
+POST {{base_url}}/auth/register
+Content-Type: application/json
 
 {
-    "email":"jose.aceves@gmail.com",
-    "password":"Jose123",
-    "username":"joseA"
+    "email": "test1@test",
+    "username": "test",
+    "password": "Test1234"
 }
 
-###
-PUT http://localhost:3000/api/login
-content-Type: application/json
+### login user ###
+POST {{base_url}}/auth/login
+Content-Type: application/json
 
 {
-    "password":"Jose123",
-    "username":"joseA"
+    "username": "test",
+    "password": "Test1234"
 }
 
-###
-GET http://localhost:3000/api/users
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
-
-###
-GET http://localhost:3000/api/users/bestScores
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
-
-###
-GET http://localhost:3000/api/users/saveGames
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
-
-###
-GET http://localhost:3000/api/users/leaders
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
-
-###
-GET http://localhost:3000/api/users/saveGames?index=0
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
-
-###
-GET http://localhost:3000/api/users/bestScores?index=0
-x-auth-user: MP3D9lJfLC-6382aabe652642d0dc4a9578
+### get user ###
+GET {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
 
-    # "email":"jose.aceves@gmail.com",
-    # "password":"Jose123",
-    # "username":"joseA"
-    # MP3D9lJfLC-6382aabe652642d0dc4a9578
+### update user ### 
+PUT {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
 
-    # "email":"HectorAinferno@gmail.com",
-    # "password":"hectorin123A",
-    # "username":"hectorininferno"
-    # un0izBMs9k-6382aaecbd62980b0e36459c
+{
+    "email": "a@gmail.com",
+    "password": "Test12345"
+}
+
+### delete user ###
+DELETE {{base_url}}/user
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+
+### post best score ###
+PUT {{base_url}}/user/bestScores
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+{
+  "board": [
+    { "x": 0, "y": 0, "value": 2 },
+    { "x": 0, "y": 1, "value": 4 },
+    { "x": 0, "y": 2, "value": 8 },
+    { "x": 0, "y": 3, "value": 32 },
+    { "x": 1, "y": 0, "value": 4 },
+    { "x": 1, "y": 1, "value": 32 },
+    { "x": 1, "y": 2, "value": 16 },
+    { "x": 1, "y": 3, "value": 64 },
+    { "x": 2, "y": 0, "value": 8 },
+    { "x": 2, "y": 1, "value": 16 },
+    { "x": 2, "y": 2, "value": 32 },
+    { "x": 2, "y": 3, "value": 4 },
+    { "x": 3, "y": 0, "value": 2 },
+    { "x": 3, "y": 1, "value": 4 },
+    { "x": 3, "y": 2, "value": 16 },
+    { "x": 3, "y": 3, "value": 2 }
+  ],
+  "score": 1000
+}
+
+### get best scores ###
+GET {{base_url}}/user/bestScores
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+### get score ###
+GET {{base_url}}/user/bestScores?index=1
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+### get saved games ###
+GET {{base_url}}/user/saveGames
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+### get one saved game ###
+GET {{base_url}}/user/saveGames?index=1
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+### get leaderboard ###
+GET {{base_url}}/user/leaders
+Content-Type: application/json
+x-auth-user:  {{token}}

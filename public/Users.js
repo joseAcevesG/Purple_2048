@@ -12,7 +12,9 @@ export {
 	deleteUser,
 };
 
+// Función para hacer una solicitud HTTP
 function makeRequest(method, url, headers = undefined, body = undefined) {
+	// Añadir clase 'over' al elemento principal y otros elementos según la página
 	document.getElementById('main').classList.add('over');
 	if (document.firstElementChild.getAttribute('pag') === 'board') {
 		document.getElementById('Leaderboard').classList.add('over');
@@ -36,6 +38,7 @@ function makeRequest(method, url, headers = undefined, body = undefined) {
 
 	return fetch(url, options)
 		.then((response) => {
+			// Quitar clase 'over' de los elementos después de la respuesta
 			document.getElementById('main').classList.remove('over');
 			if (document.firstElementChild.getAttribute('pag') === 'board') {
 				document.getElementById('Leaderboard').classList.remove('over');
@@ -68,6 +71,7 @@ function makeRequest(method, url, headers = undefined, body = undefined) {
 		});
 }
 
+// Función para iniciar sesión
 function login() {
 	const log = {
 		username: document.getElementById('username').value,
@@ -76,11 +80,13 @@ function login() {
 	putLogin(log);
 }
 
+// Función para cerrar sesión
 function logout() {
-	localStorage.token = undefined;
-	window.location.href = '/assets/login.html';
+	localStorage.removeItem('token');
+	window.location.href = '/';
 }
 
+// Función para crear un nuevo usuario
 async function createUser() {
 	try {
 		if (
@@ -95,48 +101,44 @@ async function createUser() {
 			email: document.getElementById('newEmail').value,
 			password: document.getElementById('newPassword').value,
 		};
-
-		let newUser = await makeRequest(
+		const token = await makeRequest(
 			'POST',
-			'/api/users',
+			'/auth/register',
 			{ 'Content-Type': 'application/json' },
 			user,
 		);
-		newUser = JSON.parse(newUser);
-		const log = {
-			username: newUser.username,
-			password: document.getElementById('newPassword').value,
-		};
-		putLogin(log);
+		localStorage.setItem('token', token.token);
+		window.location.href = '/game';
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para enviar los datos de inicio de sesión
 async function putLogin(data) {
 	try {
 		const token = await makeRequest(
-			'PUT',
-			'/api/login',
+			'POST',
+			'/auth/login',
 			{ 'Content-Type': 'application/json' },
 			data,
 		);
-		localStorage.token = token;
-		window.location.href = '/assets/board.html';
+		localStorage.setItem('token', token.token);
+		window.location.href = '/game';
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para inicializar los datos del usuario
 async function initData() {
 	try {
-		let user = await makeRequest('GET', '/api/users', {
+		const user = await makeRequest('GET', '/user', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		user = JSON.parse(user);
 		document.getElementById('username').innerHTML =
 			`Username: ${user.username}`;
 		document.getElementById('email').innerHTML = `Email: ${user.email}`;
@@ -149,11 +151,17 @@ async function initData() {
 		newGame();
 		return best;
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
+		if (e.status === 401) {
+			alert('Token expired');
+			logout();
+			return;
+		}
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para editar los datos del usuario
 async function editUser() {
 	try {
 		const body = {};
@@ -210,7 +218,7 @@ async function editUser() {
 
 		const editedUser = await makeRequest(
 			'PUT',
-			'/api/users',
+			'/user',
 			{ 'Content-Type': 'application/json', 'x-auth-user': localStorage.token },
 			body,
 		);
@@ -222,32 +230,33 @@ async function editUser() {
 		document.getElementById('email').innerHTML = `Email: ${user.email}`;
 		$('#modalEdit').modal('hide');
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para eliminar el usuario
 async function deleteUser() {
 	try {
-		await makeRequest('DELETE', '/api/users', {
+		await makeRequest('DELETE', '/user', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
 		alert('User deleted');
 		logout();
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para obtener las mejores puntuaciones
 async function bestScores() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/bestScores', {
+		const bestScores = await makeRequest('GET', '/user/bestScores', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		bestScores = JSON.parse(bestScores).bests;
 		if (bestScores.length === 0) {
 			document.getElementById('score1').disabled = true;
 			document.getElementById('score2').disabled = true;
@@ -273,50 +282,52 @@ async function bestScores() {
 			}
 		}
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para cargar los juegos guardados
 async function loadGames() {
 	try {
-		let saves = await makeRequest('GET', '/api/users/saveGames', {
+		const saves = await makeRequest('GET', '/user/saveGames', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
+		saves.reverse();
 		const children = document.getElementById('loads').children;
 		for (let i = children.length - 1; i >= 0; i--) {
 			document.getElementById('loads').removeChild(children[i]);
 		}
-		saves = JSON.parse(saves);
-		if (saves.saveBoards == null) return;
-		saves.saveBoards.forEach((item, index) => {
+		if (saves == null) return;
+		saves.forEach((item, index) => {
 			document.getElementById('loads').insertAdjacentHTML(
 				'beforeend',
 				`<button class="btn btn-primary" style="margin: 2vmin" href="#" saveName="${item.name}" 
-					onclick="loadGame(${index})">${item.name} - score: ${item.score}</button>`,
+                    onclick="loadGame(${index})">${item.name} - score: ${item.score}</button>`,
 			);
 		});
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Función para obtener el leaderboard
 async function leaderBoard() {
 	try {
-		let bestScores = await makeRequest('GET', '/api/users/leaders', {
+		const bestScores = await makeRequest('GET', '/user/leaders', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		bestScores = JSON.parse(bestScores);
 		if (bestScores.length === 0) return;
+		bestScores.reverse();
 		bestScores.forEach((item, index) => {
 			document.getElementById(`bestUser${index + 1}`).innerHTML = item.username;
 			document.getElementById(`bestScore${index + 1}`).innerHTML = item.score;
 		});
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }

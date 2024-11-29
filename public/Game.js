@@ -26,8 +26,7 @@ let yTouch;
 //init page
 window.addEventListener('load', async function () {
 	if (document.firstElementChild.getAttribute('pag') === 'board') {
-		if (this.localStorage.token === undefined)
-			this.window.location.href = '/assets/login.html';
+		if (this.localStorage.token === undefined) this.window.location.href = '/';
 		this.window.newGame = newGame;
 		this.window.logout = logout;
 		this.window.bestScores = bestScores;
@@ -45,8 +44,7 @@ window.addEventListener('load', async function () {
 	} else {
 		this.window.login = login;
 		this.window.createUser = createUser;
-		if (this.localStorage.token !== undefined)
-			window.location.href = '/assets/board.html';
+		if (this.localStorage.token !== undefined) window.location.href = '/game';
 	}
 });
 
@@ -54,7 +52,6 @@ window.addEventListener('touchmove', (e) => {
 	e.preventDefault();
 });
 
-//info of modals
 $('#modalSave').on('hidden.bs.modal', () => {
 	document.getElementById('saveName').value = '';
 	setupInput();
@@ -92,17 +89,13 @@ $('#showBoard').on('hidden.bs.modal', () => {
 	setupInput();
 });
 
+// Funcion que muestra el tab de los mejores puntajes.
 async function bestScore(index) {
 	try {
-		let best = await makeRequest(
-			'GET',
-			`/api/users/bestScores?index=${index}`,
-			{
-				'Content-Type': 'application/json',
-				'x-auth-user': localStorage.token,
-			},
-		);
-		best = JSON.parse(best);
+		const best = await makeRequest('GET', `/user/bestScores?index=${index}`, {
+			'Content-Type': 'application/json',
+			'x-auth-user': localStorage.token,
+		});
 		const board = document.getElementById('bestGame-board');
 		const children = board.children;
 		for (let i = children.length - 1; i >= 0; i--) {
@@ -113,17 +106,17 @@ async function bestScore(index) {
 
 		document.getElementById('bestScore').innerHTML = `Score: ${best.score}`;
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Funcion que carga un juego guardado.
 async function loadGame(index) {
-	let save = await makeRequest('GET', `/api/users/saveGames?index=${index}`, {
+	const save = await makeRequest('GET', `/user/saveGames?index=${index}`, {
 		'Content-Type': 'application/json',
 		'x-auth-user': localStorage.token,
 	});
-	save = JSON.parse(save);
 	document.getElementById('gameOver').style.display = 'none';
 	gameBoard.classList.remove('over');
 	const children = gameBoard.children;
@@ -143,6 +136,7 @@ async function loadGame(index) {
 	} else setupInput();
 }
 
+// Funcion que inicia un nuevo juego.
 function newGame() {
 	document.getElementById('gameOver').style.display = 'none';
 	gameBoard.classList.remove('over');
@@ -161,6 +155,7 @@ function newGame() {
 	setupInput();
 }
 
+// Funcion que termina el juego.
 async function gameOver() {
 	gameBoard.classList.add('over');
 	document.getElementById('gameOver').style.display = 'flex';
@@ -170,9 +165,10 @@ async function gameOver() {
 	};
 
 	try {
+		// Guardar el mejor puntaje.
 		await makeRequest(
 			'PUT',
-			'/api/users/bestScores',
+			'/user/bestScores',
 			{
 				'Content-Type': 'application/json',
 				'x-auth-user': localStorage.token,
@@ -180,11 +176,12 @@ async function gameOver() {
 			bestSave,
 		);
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
+// Funcion que guarda un juego.
 async function saveGame(saveInput = false) {
 	let flag = true;
 	const children = document.getElementById('loads').children;
@@ -207,22 +204,24 @@ async function saveGame(saveInput = false) {
 			score: score,
 		};
 		try {
+			// Guardar el juego.
 			const action = await makeRequest(
 				'PUT',
-				'/api/users/saveGames',
+				'/user/saveGames',
 				{
 					'Content-Type': 'application/json',
 					'x-auth-user': localStorage.token,
 				},
 				gameSave,
 			);
-			alert(action);
+			alert(action.message);
 			$('#modalSave').modal('hide');
 		} catch (e) {
-			console.log(e);
+			// console.log(e);
 			alert(`${e.status}: ${e.response}`);
 		}
 	} else {
+		// Mostrar mensaje de advertencia.
 		if (!flag)
 			document.getElementById('warningMessage1').innerHTML =
 				`Are you sure you want to replace ${document.getElementById('saveName').value}`;
@@ -234,6 +233,7 @@ async function saveGame(saveInput = false) {
 	}
 }
 
+// Funcion que elimina un juego guardado.
 function setupInput() {
 	window.addEventListener('keydown', handleInput, { once: true });
 	window.addEventListener(
@@ -263,6 +263,7 @@ function setupInput() {
 	);
 }
 
+// Funcion que maneja la entrada del usuario.
 async function handleInput(e) {
 	if ($('#Leaderboard').hasClass('show')) {
 		setupInput();
@@ -363,22 +364,27 @@ async function handleInput(e) {
 	setupInput();
 }
 
+// Funcion que mueve las fichas hacia arriba.
 function moveUp() {
 	return slideTiles(grid.cellsByColumn);
 }
 
+// Funcion que mueve las fichas hacia abajo.
 function moveDown() {
 	return slideTiles(grid.cellsByColumn.map((column) => [...column].reverse()));
 }
 
+// Funcion que mueve las fichas hacia la izquierda.
 function moveLeft() {
 	return slideTiles(grid.cellsByRow);
 }
 
+// Funcion que mueve las fichas hacia la derecha.
 function moveRight() {
 	return slideTiles(grid.cellsByRow.map((row) => [...row].reverse()));
 }
 
+// Funcion que desliza las fichas.
 function slideTiles(cells) {
 	return Promise.all(
 		cells.flatMap((group) => {
@@ -407,6 +413,8 @@ function slideTiles(cells) {
 		}),
 	);
 }
+
+// Funciones que determinan si se pueden mover las fichas.
 
 function canMoveUp() {
 	return canMove(grid.cellsByColumn);

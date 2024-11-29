@@ -6,8 +6,26 @@ export interface User {
 	username: string;
 	saveBoards?: SaveBoardsItem[];
 	bests?: BestsItem[];
-	leader?: number;
 }
+
+export interface UserRds {
+	id?: string;
+	email: string;
+	password: string;
+	username: string;
+	saveBoards?: SaveBoardsItem[];
+}
+
+export interface UserDyn {
+	id?: string;
+	bests?: BestsItem[];
+}
+
+export interface leaderBoardMember {
+	username: string;
+	score: number;
+}
+
 interface SaveBoardsItem {
 	name: string;
 	board: BoardItem[];
