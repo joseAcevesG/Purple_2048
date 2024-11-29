@@ -321,6 +321,7 @@ async function leaderBoard() {
 			'x-auth-user': localStorage.token,
 		});
 		if (bestScores.length === 0) return;
+		bestScores.reverse();
 		bestScores.forEach((item, index) => {
 			document.getElementById(`bestUser${index + 1}`).innerHTML = item.username;
 			document.getElementById(`bestScore${index + 1}`).innerHTML = item.score;
