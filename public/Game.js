@@ -92,11 +92,10 @@ $('#showBoard').on('hidden.bs.modal', () => {
 // Funcion que muestra el tab de los mejores puntajes.
 async function bestScore(index) {
 	try {
-		let best = await makeRequest('GET', `/user/bestScores?index=${index}`, {
+		const best = await makeRequest('GET', `/user/bestScores?index=${index}`, {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		best = JSON.parse(best);
 		const board = document.getElementById('bestGame-board');
 		const children = board.children;
 		for (let i = children.length - 1; i >= 0; i--) {
@@ -107,18 +106,17 @@ async function bestScore(index) {
 
 		document.getElementById('bestScore').innerHTML = `Score: ${best.score}`;
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
 
 // Funcion que carga un juego guardado.
 async function loadGame(index) {
-	let save = await makeRequest('GET', `/user/saveGames?index=${index}`, {
+	const save = await makeRequest('GET', `/user/saveGames?index=${index}`, {
 		'Content-Type': 'application/json',
 		'x-auth-user': localStorage.token,
 	});
-	save = JSON.parse(save);
 	document.getElementById('gameOver').style.display = 'none';
 	gameBoard.classList.remove('over');
 	const children = gameBoard.children;
@@ -178,7 +176,7 @@ async function gameOver() {
 			bestSave,
 		);
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -216,10 +214,10 @@ async function saveGame(saveInput = false) {
 				},
 				gameSave,
 			);
-			alert(action);
+			alert(action.message);
 			$('#modalSave').modal('hide');
 		} catch (e) {
-			console.log(e);
+			// console.log(e);
 			alert(`${e.status}: ${e.response}`);
 		}
 	} else {

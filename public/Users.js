@@ -110,7 +110,7 @@ async function createUser() {
 		localStorage.setItem('token', token.token);
 		window.location.href = '/game';
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -127,7 +127,7 @@ async function putLogin(data) {
 		localStorage.setItem('token', token.token);
 		window.location.href = '/game';
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -135,11 +135,10 @@ async function putLogin(data) {
 // Función para inicializar los datos del usuario
 async function initData() {
 	try {
-		let user = await makeRequest('GET', '/user', {
+		const user = await makeRequest('GET', '/user', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		user = JSON.parse(user);
 		document.getElementById('username').innerHTML =
 			`Username: ${user.username}`;
 		document.getElementById('email').innerHTML = `Email: ${user.email}`;
@@ -152,7 +151,7 @@ async function initData() {
 		newGame();
 		return best;
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		if (e.status === 401) {
 			alert('Token expired');
 			logout();
@@ -231,7 +230,7 @@ async function editUser() {
 		document.getElementById('email').innerHTML = `Email: ${user.email}`;
 		$('#modalEdit').modal('hide');
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -246,7 +245,7 @@ async function deleteUser() {
 		alert('User deleted');
 		logout();
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -254,11 +253,10 @@ async function deleteUser() {
 // Función para obtener las mejores puntuaciones
 async function bestScores() {
 	try {
-		let bestScores = await makeRequest('GET', '/user/bestScores', {
+		const bestScores = await makeRequest('GET', '/user/bestScores', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		bestScores = JSON.parse(bestScores).bests;
 		if (bestScores.length === 0) {
 			document.getElementById('score1').disabled = true;
 			document.getElementById('score2').disabled = true;
@@ -284,7 +282,7 @@ async function bestScores() {
 			}
 		}
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -292,17 +290,17 @@ async function bestScores() {
 // Función para cargar los juegos guardados
 async function loadGames() {
 	try {
-		let saves = await makeRequest('GET', '/user/saveGames', {
+		const saves = await makeRequest('GET', '/user/saveGames', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
+		saves.reverse();
 		const children = document.getElementById('loads').children;
 		for (let i = children.length - 1; i >= 0; i--) {
 			document.getElementById('loads').removeChild(children[i]);
 		}
-		saves = JSON.parse(saves);
-		if (saves.saveBoards == null) return;
-		saves.saveBoards.forEach((item, index) => {
+		if (saves == null) return;
+		saves.forEach((item, index) => {
 			document.getElementById('loads').insertAdjacentHTML(
 				'beforeend',
 				`<button class="btn btn-primary" style="margin: 2vmin" href="#" saveName="${item.name}" 
@@ -310,7 +308,7 @@ async function loadGames() {
 			);
 		});
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -318,18 +316,17 @@ async function loadGames() {
 // Función para obtener el leaderboard
 async function leaderBoard() {
 	try {
-		let bestScores = await makeRequest('GET', '/user/leaders', {
+		const bestScores = await makeRequest('GET', '/user/leaders', {
 			'Content-Type': 'application/json',
 			'x-auth-user': localStorage.token,
 		});
-		bestScores = JSON.parse(bestScores);
 		if (bestScores.length === 0) return;
 		bestScores.forEach((item, index) => {
 			document.getElementById(`bestUser${index + 1}`).innerHTML = item.username;
 			document.getElementById(`bestScore${index + 1}`).innerHTML = item.score;
 		});
 	} catch (e) {
-		console.log(e);
+		// console.log(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }

@@ -36,7 +36,7 @@ export default class Grid {
 		const tiles = [];
 		for (const row of this.#cells) {
 			for (const cell of row) {
-				if (cell.tile !== undefined) {
+				if (cell.tile) {
 					tiles.push({
 						x: cell.x,
 						y: cell.y,
