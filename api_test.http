@@ -1,6 +1,6 @@
 @base_url = http://localhost:3001
 # @base_url = http://3.95.245.34:3001
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiYWxkIiwiZW1haWwiOiJhQGdtYWlsLmNvbSIsImlhdCI6MTczMjMyMTcyMX0.R6jxzqOdYnnwVKD3Wo8aqSgMildKrbPjRrGbjmJCahI
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGVzdCIsImVtYWlsIjoidGVzdDFAdGVzdCIsImlhdCI6MTczMjg2MDU2NH0.2i3Ku5SInCt1K4UzURpkDBPtVzCKMFFv7SpfZYAKLG4
 
 ### test api ###
 GET {{base_url}}
@@ -10,9 +10,9 @@ POST {{base_url}}/auth/register
 Content-Type: application/json
 
 {
-    "email": "a@gmail.com",
-    "username": "ald",
-    "password": "123"
+    "email": "test1@test",
+    "username": "test",
+    "password": "Test1234"
 }
 
 ### login user ###
@@ -20,8 +20,8 @@ POST {{base_url}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "a@gmail.com",
-    "password": "123"
+    "username": "test",
+    "password": "Test1234"
 }
 
 ### get user ###
@@ -29,41 +29,71 @@ GET {{base_url}}/user
 Content-Type: application/json
 x-auth-user:  {{token}}
 
-### update user ###
+
+### update user ### 
 PUT {{base_url}}/user
 Content-Type: application/json
 x-auth-user:  {{token}}
 
 {
     "email": "a@gmail.com",
-    "username": "al",
-    "password": "12",
-    "oldPassword": "123"
-
+    "password": "Test12345"
 }
 
-### logout user ###
+### delete user ###
 DELETE {{base_url}}/user
 Content-Type: application/json
 x-auth-user:  {{token}}
 
 
+### post best score ###
+PUT {{base_url}}/user/bestScores
+Content-Type: application/json
+x-auth-user:  {{token}}
+
+{
+  "board": [
+    { "x": 0, "y": 0, "value": 2 },
+    { "x": 0, "y": 1, "value": 4 },
+    { "x": 0, "y": 2, "value": 8 },
+    { "x": 0, "y": 3, "value": 32 },
+    { "x": 1, "y": 0, "value": 4 },
+    { "x": 1, "y": 1, "value": 32 },
+    { "x": 1, "y": 2, "value": 16 },
+    { "x": 1, "y": 3, "value": 64 },
+    { "x": 2, "y": 0, "value": 8 },
+    { "x": 2, "y": 1, "value": 16 },
+    { "x": 2, "y": 2, "value": 32 },
+    { "x": 2, "y": 3, "value": 4 },
+    { "x": 3, "y": 0, "value": 2 },
+    { "x": 3, "y": 1, "value": 4 },
+    { "x": 3, "y": 2, "value": 16 },
+    { "x": 3, "y": 3, "value": 2 }
+  ],
+  "score": 1000
+}
+
 ### get best scores ###
 GET {{base_url}}/user/bestScores
 Content-Type: application/json
+x-auth-user:  {{token}}
 
 ### get score ###
 GET {{base_url}}/user/bestScores?index=1
 Content-Type: application/json
+x-auth-user:  {{token}}
 
 ### get saved games ###
 GET {{base_url}}/user/saveGames
 Content-Type: application/json
+x-auth-user:  {{token}}
 
 ### get one saved game ###
 GET {{base_url}}/user/saveGames?index=1
 Content-Type: application/json
+x-auth-user:  {{token}}
 
 ### get leaderboard ###
 GET {{base_url}}/user/leaders
 Content-Type: application/json
+x-auth-user:  {{token}}
