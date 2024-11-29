@@ -60,13 +60,10 @@ jobs:
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.run_id }}
 
   deploy:
-    # Esta configuración hace que deploy solo se ejecute manualmente
     runs-on: ubuntu-latest
     environment: Development
     needs: docker
     env:
-      AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-      DYNAMODB_TABLE_NAME: ${{ vars.DYNAMODB_TABLE_NAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
@@ -85,9 +82,9 @@ jobs:
             export AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
             $(aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com)
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.run_id }}
-            docker stop demo-twelve || true
-            docker container rm -f demo-twelve || true
-            docker run -d --name demo-twelve -p 8080:8080 \
+            docker stop purple-container || true
+            docker container rm -f purple-container || true
+            docker run -d --name purple-container -p 8080:8080 \
               -e AWS_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
               -e DYNAMODB_TABLE_NAME=${{ vars.DYNAMODB_TABLE_NAME }} \
               -e RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }} \
