@@ -8,4 +8,5 @@ router.post('/login', userControllers.logIn);
 //POST para Register
 router.post('/register', userControllers.signUp);
 
+const test = 0;
 export default router;
