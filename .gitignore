@@ -5,4 +5,4 @@ mongo.pdf
 dist/
 .env
 .vscode/
-#
+.DS_Store
