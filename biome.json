@@ -28,20 +28,53 @@
 
 		"indentStyle": "tab"
 	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "single"
-		}
-	},
 	"organizeImports": {
 		"enabled": true
+	},
+	"assists": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"sortJsxProps": "on",
+				"useSortedKeys": "on"
+			}
+		}
+	},
+	"css": {
+		"linter": {
+			"enabled": true
+		}
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true,
+			"complexity": {
+				"noUselessStringConcat": "error",
+				"noUselessUndefinedInitialization": "error",
+				"noVoid": "error",
+				"useSimplifiedLogicExpression": "error"
+			},
+			"correctness": {
+				"noConstantMathMinMaxClamp": "error",
+				"noInvalidNewBuiltin": "error",
+				"noUnusedFunctionParameters": "error",
+				"noUnusedImports": "error",
+				"noUnusedPrivateClassMembers": "error",
+				"noUnusedVariables": "error",
+				"useArrayLiterals": "error",
+				"useHookAtTopLevel": "error"
+			},
+			"performance": {
+				"noBarrelFile": "error"
+			},
 			"style": {
-				"useImportType": "off"
+				"noDoneCallback": "error",
+				"useBlockStatements": "error",
+				"useCollapsedElseIf": "error",
+				"useConsistentBuiltinInstantiation": "error",
+				"useForOf": "error",
+				"useShorthandAssign": "error"
 			}
 		}
 	}
