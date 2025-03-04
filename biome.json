@@ -70,7 +70,6 @@
 			},
 			"style": {
 				"noDoneCallback": "error",
-				"useBlockStatements": "error",
 				"useCollapsedElseIf": "error",
 				"useConsistentBuiltinInstantiation": "error",
 				"useForOf": "error",

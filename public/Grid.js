@@ -1,5 +1,5 @@
 // cSpell:ignore vmin
-import Tile from '/assets/Tile.js';
+import Tile from "/assets/Tile.js";
 
 const GRID_SIZE = 4;
 const CELL_SIZE = 14.5;
@@ -11,9 +11,9 @@ export default class Grid {
 
 	//Crea una instancia de la clase Grid.
 	constructor(gridElement, data = undefined) {
-		gridElement.style.setProperty('--grid-size', GRID_SIZE);
-		gridElement.style.setProperty('--cell-size', `${CELL_SIZE}vmin`);
-		gridElement.style.setProperty('--cell-gap', `${CELL_GAP}vmin`);
+		gridElement.style.setProperty("--grid-size", GRID_SIZE);
+		gridElement.style.setProperty("--cell-size", `${CELL_SIZE}vmin`);
+		gridElement.style.setProperty("--cell-gap", `${CELL_GAP}vmin`);
 		this.#cells = createCellElements(gridElement).map((cellArr, indexX) => {
 			return cellArr.map((cell, indexY) => {
 				return new Cell(cell, indexX, indexY);
@@ -142,9 +142,9 @@ class Cell {
 	// Funcion que une dos fichas en una celda.
 	mergeTiles(score) {
 		if (this.tile == null || this.mergeTile == null) return score;
-		this.tile.value = this.tile.value + this.mergeTile.value;
+		this.tile.value += this.mergeTile.value;
 		const newScore = Number.parseInt(score) + Number.parseInt(this.#tile.value);
-		document.getElementById('score').innerHTML = `Score: ${newScore}`;
+		document.getElementById("score").innerHTML = `Score: ${newScore}`;
 
 		this.mergeTile.remove();
 		this.mergeTile = null;
@@ -160,8 +160,8 @@ function createCellElements(gridElement) {
 	}
 	for (let i = 0; i < GRID_SIZE; i++) {
 		for (let j = 0; j < GRID_SIZE; j++) {
-			const cell = document.createElement('div');
-			cell.classList.add('cell');
+			const cell = document.createElement("div");
+			cell.classList.add("cell");
 			cells[i][j] = cell;
 			gridElement.append(cell);
 		}

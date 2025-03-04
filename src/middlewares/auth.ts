@@ -1,44 +1,44 @@
-import { NextFunction, Request, Response } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
-import user from '../models/user-model';
-import { RequestUser } from '../types';
-import ResponseStatus from '../types/response-codes';
-import NotFoundError from '../utils/NotFoundError';
-import UnauthorizedError from '../utils/UnauthorizedError';
-import { decode } from '../utils/create-token';
+import type { NextFunction, Request, Response } from "express";
+import type { JwtPayload } from "jsonwebtoken";
+import user from "../models/user-model";
+import type { RequestUser } from "../types";
+import ResponseStatus from "../types/response-codes";
+import NotFoundError from "../utils/NotFoundError";
+import UnauthorizedError from "../utils/UnauthorizedError";
+import { decode } from "../utils/create-token";
 
 export default (req: RequestUser, res: Response, next: NextFunction) => {
-	const token: string = (req as Request).headers['x-auth-user'] as string;
+	const token: string = (req as Request).headers["x-auth-user"] as string;
 	if (!token) {
-		res.status(ResponseStatus.UNAUTHORIZED).send('Unauthorized');
+		res.status(ResponseStatus.UNAUTHORIZED).send("Unauthorized");
 		return;
 	}
 	const data = decode(token);
 	if (!data) {
-		res.status(ResponseStatus.UNAUTHORIZED).send('Unauthorized');
+		res.status(ResponseStatus.UNAUTHORIZED).send("Unauthorized");
 		return;
 	}
 	user
 		.findByUsername((data as JwtPayload).name)
 		.then((user) => {
 			if (!user) {
-				throw new UnauthorizedError('Unauthorized');
+				throw new UnauthorizedError("Unauthorized");
 			}
 			req.user = user;
 			next();
 		})
 		.catch((error) => {
 			if (error instanceof UnauthorizedError) {
-				res.status(ResponseStatus.UNAUTHORIZED).send('Unauthorized');
+				res.status(ResponseStatus.UNAUTHORIZED).send("Unauthorized");
 				return;
 			}
 			if (error instanceof NotFoundError) {
-				res.status(ResponseStatus.UNAUTHORIZED).send('invalid token');
+				res.status(ResponseStatus.UNAUTHORIZED).send("invalid token");
 				return;
 			}
 			console.error(error);
 			res
 				.status(ResponseStatus.INTERNAL_SERVER_ERROR)
-				.send('Something went wrong');
+				.send("Something went wrong");
 		});
 };

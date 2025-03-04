@@ -14,9 +14,9 @@ export default class Tile {
 		y = undefined,
 	) {
 		// Crear un nuevo elemento div para el tile
-		this.#tileElement = document.createElement('div');
+		this.#tileElement = document.createElement("div");
 		// Añadir la clase 'tile' al elemento
-		this.#tileElement.classList.add('tile');
+		this.#tileElement.classList.add("tile");
 		// Añadir el elemento tile al contenedor
 		tileContainer.append(this.#tileElement);
 		// Establecer el valor del tile
@@ -55,7 +55,9 @@ export default class Tile {
 		const classes = this.#tileElement.classList;
 		// Eliminar todas las clases excepto 'tile'
 		for (let i = classes.length + 1; i >= 0; i--) {
-			if (classes[i] !== 'tile') this.#tileElement.classList.remove(classes[i]);
+			if (classes[i] !== "tile") {
+				this.#tileElement.classList.remove(classes[i]);
+			}
 		}
 		// Añadir una clase basada en el valor
 		this.#tileElement.classList.add(`t${v}`);
@@ -66,7 +68,7 @@ export default class Tile {
 		// Establecer la propiedad privada #x
 		this.#x = value;
 		// Actualizar la variable CSS --x para el elemento tile
-		this.#tileElement.style.setProperty('--x', value);
+		this.#tileElement.style.setProperty("--x", value);
 	}
 
 	// Setter para la propiedad y
@@ -74,7 +76,7 @@ export default class Tile {
 		// Establecer la propiedad privada #y
 		this.#y = value;
 		// Actualizar la variable CSS --y para el elemento tile
-		this.#tileElement.style.setProperty('--y', value);
+		this.#tileElement.style.setProperty("--y", value);
 	}
 
 	// Método para eliminar el elemento tile del DOM
@@ -86,7 +88,7 @@ export default class Tile {
 	waitForTransition(animation = false) {
 		return new Promise((resolve) => {
 			this.#tileElement.addEventListener(
-				animation ? 'animationend' : 'transitionend',
+				animation ? "animationend" : "transitionend",
 				resolve,
 				{
 					once: true,
