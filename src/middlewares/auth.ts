@@ -21,6 +21,7 @@ export default (req: RequestUser, res: Response, next: NextFunction) => {
 	user
 		.findByUsername((data as JwtPayload).name)
 		.then((user) => {
+			user.__v = undefined;
 			if (!user) {
 				throw new UnauthorizedError("Unauthorized");
 			}

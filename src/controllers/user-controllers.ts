@@ -1,20 +1,18 @@
 // cspell: ignore uuidv
-import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import dynModel from '../models/user-dyn-model';
-import userModel from '../models/user-model';
-import { RequestUser, User, UserDyn, leaderBoardMember } from '../types';
-import ResponseStatus from '../types/response-codes';
-import BadRequestError from '../utils/BadRequestError';
-import NotFoundError from '../utils/NotFoundError';
-import UnauthorizedError from '../utils/UnauthorizedError';
-import { code as createToken } from '../utils/create-token';
-import hashPassword from '../utils/hash-password';
+import type { Request, Response } from "express";
+import mongoModel from "../models/mongo-model";
+import userModel from "../models/user-model";
+import type { BestsItem, RequestUser, User } from "../types";
+import ResponseStatus from "../types/response-codes";
+import BadRequestError from "../utils/BadRequestError";
+import NotFoundError from "../utils/NotFoundError";
+import UnauthorizedError from "../utils/UnauthorizedError";
+import { code as createToken } from "../utils/create-token";
+import hashPassword from "../utils/hash-password";
 
 class UsersController {
 	signUp(req: Request, res: Response) {
 		const data: User = {
-			id: uuidv4(),
 			email: req.body.email,
 			password: hashPassword(req.body.password),
 			username: req.body.username,
@@ -31,7 +29,13 @@ class UsersController {
 			})
 			.catch((err: Error) => {
 				if (err instanceof BadRequestError) {
-					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					if (err.message === "Invalid data") {
+						res.status(ResponseStatus.BAD_REQUEST).send("Invalid data");
+						return;
+					}
+					res
+						.status(ResponseStatus.BAD_REQUEST)
+						.send("Email already or Username already exists");
 					return;
 				}
 				console.error(err);
@@ -46,7 +50,7 @@ class UsersController {
 			.findByUsername(req.body.username)
 			.then((user: User) => {
 				if (hashPassword(req.body.password) !== user.password) {
-					throw new UnauthorizedError('Unauthorized');
+					throw new UnauthorizedError("Unauthorized");
 				}
 				res.status(ResponseStatus.SUCCESS).send({
 					token: createToken({ name: user.username, email: user.email }),
@@ -56,17 +60,17 @@ class UsersController {
 				if (err instanceof UnauthorizedError) {
 					res
 						.status(ResponseStatus.UNAUTHORIZED)
-						.send('password or email is incorrect');
+						.send("password or email is incorrect");
 					return;
 				}
 				if (err instanceof NotFoundError) {
 					res
 						.status(ResponseStatus.NOT_FOUND)
-						.send('password or email is incorrect');
+						.send("password or email is incorrect");
 					return;
 				}
 				if (err instanceof BadRequestError) {
-					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					res.status(ResponseStatus.BAD_REQUEST).send("Invalid data");
 					return;
 				}
 				console.error(err);
@@ -85,7 +89,7 @@ class UsersController {
 			req.body.password &&
 			hashPassword(req.body.oldPassword) !== req.user.password
 		) {
-			res.status(ResponseStatus.UNAUTHORIZED).send('password is incorrect');
+			res.status(ResponseStatus.UNAUTHORIZED).send("password is incorrect");
 			return;
 		}
 		const password = req.body.password
@@ -108,7 +112,7 @@ class UsersController {
 			})
 			.catch((err: Error) => {
 				if (err instanceof BadRequestError) {
-					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					res.status(ResponseStatus.BAD_REQUEST).send("User already exists");
 					return;
 				}
 				console.error(err);
@@ -120,13 +124,13 @@ class UsersController {
 
 	deleteUser(req: RequestUser, res: Response) {
 		userModel
-			.delete(req.user.id)
+			.delete(req.user.email)
 			.then(() => {
-				res.status(ResponseStatus.SUCCESS).send({ message: 'User deleted' });
+				res.status(ResponseStatus.SUCCESS).send({ message: "User deleted" });
 			})
 			.catch((err: Error) => {
 				if (err instanceof NotFoundError) {
-					res.status(ResponseStatus.SUCCESS).send('User deleted');
+					res.status(ResponseStatus.SUCCESS).send({ message: "User deleted" });
 					return;
 				}
 				console.error(err);
@@ -143,7 +147,7 @@ class UsersController {
 		}
 		const index = Number.parseInt(req.query.index as string, 10);
 		if (index >= req.user.bests.length) {
-			res.status(ResponseStatus.BAD_REQUEST).send('Index out of bounds');
+			res.status(ResponseStatus.BAD_REQUEST).send("Index out of bounds");
 			return;
 		}
 		res.status(ResponseStatus.SUCCESS).send(req.user.bests[index]);
@@ -151,10 +155,12 @@ class UsersController {
 
 	updateBestScores(req: RequestUser, res: Response) {
 		if (
-			req.user.bests.length !== 0 &&
+			req.user.bests.length === 5 &&
 			req.user.bests[req.user.bests.length - 1].score > req.body.score
 		) {
-			res.status(ResponseStatus.SUCCESS).send('Score not high enough');
+			res
+				.status(ResponseStatus.SUCCESS)
+				.send({ message: "Score not high enough" });
 			return;
 		}
 
@@ -167,42 +173,73 @@ class UsersController {
 		req.user.bests.splice(i, 0, req.body);
 		req.user.bests = req.user.bests.slice(0, 5);
 
-		const data: UserDyn = {
-			id: req.user.id,
-			bests: req.user.bests,
-		};
-
-		dynModel
-			.saveUser(data)
-			.then(() => {
-				return dynModel.getLeaders();
-			})
-			.then((response) => {
-				const item = response.Item;
-				const leaders = (item?.leaders ?? []) as leaderBoardMember[];
-				if (
-					leaders.length !== 0 &&
-					leaders[leaders.length - 1].score > req.body.score
-				) {
-					res.status(ResponseStatus.SUCCESS).send('Score not high enough');
-					return;
+		mongoModel
+			.where("leader")
+			.gt(0)
+			.then((leaders: User[]) => {
+				if (leaders.length === 0) {
+					req.user.leader++;
+					return userModel.update(req.user);
 				}
-				for (i = 0; i < leaders.length; i++) {
-					if (leaders[i].score > req.body.score) {
+				const sortLeaders = leaders
+					.flatMap((leader: User) => {
+						return leader.bests
+							.map((best: BestsItem) => {
+								return best.score;
+							})
+							.slice(0, leader.leader)
+							.map((score) => {
+								return { id: leader.id, score: score };
+							});
+					})
+					.sort((a, b) => {
+						return b.score - a.score;
+					});
+				console.log({ sortLeaders });
+
+				if (sortLeaders.length < 5) {
+					req.user.leader++;
+					return userModel.update(req.user);
+				}
+
+				console.log({
+					userScore: req.body.score,
+					lastLeaderScore: sortLeaders[sortLeaders.length - 1].score,
+					isLesThan: req.body.score < sortLeaders[sortLeaders.length - 1].score,
+				});
+
+				if (req.body.score < sortLeaders[sortLeaders.length - 1].score) {
+					return userModel.update(req.user);
+				}
+
+				i = 0;
+				for (i = 0; i < sortLeaders.length; i++) {
+					if (req.body.score > sortLeaders[i].score) {
 						break;
 					}
 				}
-				leaders.splice(i, 0, {
-					username: req.user.username,
-					score: req.body.score,
+				console.log({ i });
+
+				sortLeaders.splice(i, 0, { id: req.user.id, score: req.body.score });
+				const lastLeader = leaders.find((leader: User) => {
+					return leader.id === sortLeaders[sortLeaders.length - 1].id;
 				});
-				const newLeaders = leaders.slice(0, 5);
-				return dynModel.saveLeaders(newLeaders);
+				if (lastLeader.id === req.user.id) {
+					return userModel.update(req.user);
+				}
+
+				req.user.leader++;
+				const updateUser = userModel.update(req.user);
+
+				lastLeader.leader--;
+				const updateLats = userModel.update(lastLeader);
+
+				return Promise.all([updateUser, updateLats]).then(() => updateUser);
 			})
 			.then(() => {
-				res.status(ResponseStatus.SUCCESS).send({ message: 'Score saved' });
+				res.status(ResponseStatus.SUCCESS).send({ message: "Leader updated" });
 			})
-			.catch((err: Error) => {
+			.catch((err) => {
 				console.error(err);
 				res
 					.status(ResponseStatus.INTERNAL_SERVER_ERROR)
@@ -241,11 +278,11 @@ class UsersController {
 		userModel
 			.update(data)
 			.then(() => {
-				res.status(ResponseStatus.SUCCESS).send({ message: 'Board saved' });
+				res.status(ResponseStatus.SUCCESS).send({ message: "Board saved" });
 			})
 			.catch((err: Error) => {
 				if (err instanceof BadRequestError) {
-					res.status(ResponseStatus.BAD_REQUEST).send('User already exists');
+					res.status(ResponseStatus.BAD_REQUEST).send("User already exists");
 					return;
 				}
 				console.error(err);
@@ -262,19 +299,38 @@ class UsersController {
 		}
 		const index = Number.parseInt(req.query.index as string, 10);
 		if (index >= req.user.saveBoards.length) {
-			res.status(ResponseStatus.BAD_REQUEST).send('Index out of bounds');
+			res.status(ResponseStatus.BAD_REQUEST).send("Index out of bounds");
 			return;
 		}
 		res.status(ResponseStatus.SUCCESS).send(req.user.saveBoards[index]);
 	}
 
-	getLeaders(req: RequestUser, res: Response) {
-		dynModel
-			.getLeaders()
-			.then((response) => {
-				const item = response.Item;
-				const leaders = (item?.leaders ?? []) as leaderBoardMember[];
-				res.status(ResponseStatus.SUCCESS).send(leaders);
+	getLeaders(_req: RequestUser, res: Response) {
+		mongoModel
+			.where("leader")
+			.gt(0)
+			.then((leaders: User[]) => {
+				if (leaders.length === 0) {
+					res.status(ResponseStatus.SUCCESS).send([]);
+					return;
+				}
+				console.log({ leaders });
+				const sortLeaders = leaders
+					.flatMap((leader: User) => {
+						return leader.bests
+							.map((best: BestsItem) => {
+								return best.score;
+							})
+							.slice(0, leader.leader)
+							.map((score) => {
+								return { username: leader.username, score: score };
+							});
+					})
+					.sort((a, b) => {
+						return b.score - a.score;
+					});
+
+				res.status(ResponseStatus.SUCCESS).send(sortLeaders);
 			})
 			.catch((err: Error) => {
 				console.error(err);

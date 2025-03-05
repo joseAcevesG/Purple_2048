@@ -176,7 +176,7 @@ async function gameOver() {
 			bestSave,
 		);
 	} catch (e) {
-		// console.log(e);
+		console.error(e);
 		alert(`${e.status}: ${e.response}`);
 	}
 }
@@ -227,7 +227,7 @@ async function saveGame(saveInput = false) {
 				`Are you sure you want to replace ${document.getElementById("saveName").value}`;
 		else {
 			document.getElementById("warningMessage1").innerHTML =
-				`Are you sure you want to delete your oldest save game? (${children[0].getAttribute("saveName")})`;
+				`Are you sure you want to delete your oldest save game? (${children[children.length - 1].getAttribute("saveName")})`;
 		}
 		$("#modalWarning").modal({ show: true });
 	}

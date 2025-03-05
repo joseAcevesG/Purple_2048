@@ -1,116 +1,69 @@
-import { User, UserDyn, UserRds } from '../types';
-import BadRequestError from '../utils/BadRequestError';
-import NotFoundError from '../utils/NotFoundError';
-import dynUser from './user-dyn-model';
-import rdsModel from './user-rds-model';
-const dummyUser: User = {
-	email: 'test@test',
-	password: 'test',
-	username: 'test',
-};
+import type { User } from "../types";
+import BadRequestError from "../utils/BadRequestError";
+import NotFoundError from "../utils/NotFoundError";
+import mongoModel from "./mongo-model";
 
 class userModel {
 	findByUsername(username: string) {
-		return rdsModel
-			.findOne({ where: { username } })
+		return mongoModel
+			.findOne({ username })
 			.then((user) => {
 				if (!user) {
-					throw new Error('User not found');
+					throw new NotFoundError("User not found");
 				}
 
-				const userData = user.get() as UserRds;
-
-				return dynUser
-					.getUser(userData.id)
-					.then((response) => {
-						return {
-							id: userData.id,
-							email: userData.email,
-							password: userData.password,
-							username: userData.username,
-							saveBoards: userData.saveBoards,
-							bests: response.Item?.bests,
-						};
-					})
-					.catch((err) => {
-						console.error(err);
-						throw new Error('Error finding user');
-					});
+				return user;
 			})
 			.catch((err) => {
-				console.error(err);
-				if (err.message === 'User not found') {
-					throw new NotFoundError('Not Found');
+				if (err instanceof NotFoundError) {
+					throw new NotFoundError("Not Found");
 				}
-				throw new Error('Error finding user');
+				console.error(err);
+				throw err;
 			});
 	}
+
 	create(data: User) {
-		const dynData: UserDyn = {
-			id: data.id,
-			bests: data.bests,
-		};
-
-		const rdsData: UserRds = {
-			id: data.id,
-			email: data.email,
-			password: data.password,
-			username: data.username,
-			saveBoards: data.saveBoards,
-		};
-
-		return rdsModel
-			.create(rdsData)
-			.then(() => {
-				return dynUser.saveUser(dynData);
-			})
+		return mongoModel
+			.create(data)
 			.then(() => data)
 			.catch((err) => {
-				if (err.parent.errno === 1062) {
-					throw new BadRequestError('Bad request');
+				if (err.code === 11000) {
+					throw new BadRequestError("Email already or Username already exists");
+				}
+				if (err.name === "ValidationError") {
+					throw new BadRequestError("Invalid data");
 				}
 				console.error(err);
-				throw new Error('Error creating user');
+				throw err;
 			});
 	}
 
 	update(data: User) {
-		const dynData: UserDyn = {
-			id: data.id,
-			bests: data.bests,
-		};
+		const { email } = data;
 
-		const rdsData: UserRds = {
-			id: data.id,
-			email: data.email,
-			password: data.password,
-			username: data.username,
-			saveBoards: data.saveBoards,
-		};
-
-		const dynPromise = dynUser.saveUser(dynData);
-		const rsdPromise = rdsModel.update(rdsData, { where: { id: data.id } });
-
-		return Promise.all([dynPromise, rsdPromise])
+		return mongoModel
+			.updateOne({ email }, data)
 			.then(() => data)
 			.catch((err) => {
-				if (err.parent.errno === 1062) {
-					throw new BadRequestError('Bad request');
+				if (err.code === 11000) {
+					throw new BadRequestError("Email already or Username already exists");
+				}
+				if (err.name === "ValidationError") {
+					throw new BadRequestError("Invalid data");
 				}
 				console.error(err);
-				throw new Error('Error updating user');
+				throw err;
 			});
 	}
 
-	delete(id: string) {
-		const dynPromise = dynUser.deleteUser(id);
-		const rdsPromise = rdsModel.destroy({ where: { id: id } });
-
-		return Promise.all([dynPromise, rdsPromise])
+	delete(email: string) {
+		return mongoModel
+			.deleteOne({ email })
 			.then(() => {})
 			.catch((err) => {
 				console.error(err);
-				throw new Error('Error deleting user');
+				throw err;
 			});
 	}
 }

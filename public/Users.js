@@ -294,7 +294,6 @@ async function loadGames() {
 			"Content-Type": "application/json",
 			"x-auth-user": localStorage.token,
 		});
-		saves.reverse();
 		const children = document.getElementById("loads").children;
 		for (let i = children.length - 1; i >= 0; i--) {
 			document.getElementById("loads").removeChild(children[i]);
@@ -321,7 +320,6 @@ async function leaderBoard() {
 			"x-auth-user": localStorage.token,
 		});
 		if (bestScores.length === 0) return;
-		bestScores.reverse();
 		bestScores.forEach((item, index) => {
 			document.getElementById(`bestUser${index + 1}`).innerHTML = item.username;
 			document.getElementById(`bestScore${index + 1}`).innerHTML = item.score;
