@@ -195,18 +195,11 @@ class UsersController {
 					.sort((a, b) => {
 						return b.score - a.score;
 					});
-				console.log({ sortLeaders });
 
 				if (sortLeaders.length < 5) {
 					req.user.leader++;
 					return userModel.update(req.user);
 				}
-
-				console.log({
-					userScore: req.body.score,
-					lastLeaderScore: sortLeaders[sortLeaders.length - 1].score,
-					isLesThan: req.body.score < sortLeaders[sortLeaders.length - 1].score,
-				});
 
 				if (req.body.score < sortLeaders[sortLeaders.length - 1].score) {
 					return userModel.update(req.user);
@@ -218,7 +211,6 @@ class UsersController {
 						break;
 					}
 				}
-				console.log({ i });
 
 				sortLeaders.splice(i, 0, { id: req.user.id, score: req.body.score });
 				const lastLeader = leaders.find((leader: User) => {
@@ -314,7 +306,6 @@ class UsersController {
 					res.status(ResponseStatus.SUCCESS).send([]);
 					return;
 				}
-				console.log({ leaders });
 				const sortLeaders = leaders
 					.flatMap((leader: User) => {
 						return leader.bests
