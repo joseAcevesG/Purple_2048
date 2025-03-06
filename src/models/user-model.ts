@@ -1,29 +1,70 @@
-import { User } from '../types';
-const dummyUser: User = {
-	email: 'test@test',
-	password: 'test',
-	username: 'test',
-};
+import type { User } from "../types";
+import BadRequestError from "../utils/BadRequestError";
+import NotFoundError from "../utils/NotFoundError";
+import mongoModel from "./mongo-model";
 
 class userModel {
-	findByEmail(email: string) {
-		return new Promise<User>((resolve, reject) => {
-			if (email === dummyUser.email) {
-				resolve(dummyUser);
-			} else {
-				reject('User not found');
-			}
-		});
+	findByUsername(username: string) {
+		return mongoModel
+			.findOne({ username })
+			.then((user) => {
+				if (!user) {
+					throw new NotFoundError("User not found");
+				}
+
+				return user;
+			})
+			.catch((err) => {
+				if (err instanceof NotFoundError) {
+					throw new NotFoundError("Not Found");
+				}
+				console.error(err);
+				throw err;
+			});
 	}
 
 	create(data: User) {
-		return new Promise<User>((resolve, reject) => {
-			if (data.email === dummyUser.email) {
-				reject('User already exists');
-			} else {
-				resolve(data);
-			}
-		});
+		return mongoModel
+			.create(data)
+			.then(() => data)
+			.catch((err) => {
+				if (err.code === 11000) {
+					throw new BadRequestError("Email already or Username already exists");
+				}
+				if (err.name === "ValidationError") {
+					throw new BadRequestError("Invalid data");
+				}
+				console.error(err);
+				throw err;
+			});
+	}
+
+	update(data: User) {
+		const { email } = data;
+
+		return mongoModel
+			.updateOne({ email }, data)
+			.then(() => data)
+			.catch((err) => {
+				if (err.code === 11000) {
+					throw new BadRequestError("Email already or Username already exists");
+				}
+				if (err.name === "ValidationError") {
+					throw new BadRequestError("Invalid data");
+				}
+				console.error(err);
+				throw err;
+			});
+	}
+
+	delete(email: string) {
+		return mongoModel
+			.deleteOne({ email })
+			.then(() => {})
+			.catch((err) => {
+				console.error(err);
+				throw err;
+			});
 	}
 }
 

@@ -1,17 +1,19 @@
 // cSpell:ignore vmin
-import Tile from '/assets/Tile.js';
+import Tile from "/assets/Tile.js";
 
 const GRID_SIZE = 4;
 const CELL_SIZE = 14.5;
 const CELL_GAP = 2;
 
+// Clase que representa la cuadrícula del juego.
 export default class Grid {
 	#cells;
 
+	//Crea una instancia de la clase Grid.
 	constructor(gridElement, data = undefined) {
-		gridElement.style.setProperty('--grid-size', GRID_SIZE);
-		gridElement.style.setProperty('--cell-size', `${CELL_SIZE}vmin`);
-		gridElement.style.setProperty('--cell-gap', `${CELL_GAP}vmin`);
+		gridElement.style.setProperty("--grid-size", GRID_SIZE);
+		gridElement.style.setProperty("--cell-size", `${CELL_SIZE}vmin`);
+		gridElement.style.setProperty("--cell-gap", `${CELL_GAP}vmin`);
 		this.#cells = createCellElements(gridElement).map((cellArr, indexX) => {
 			return cellArr.map((cell, indexY) => {
 				return new Cell(cell, indexX, indexY);
@@ -29,11 +31,12 @@ export default class Grid {
 		}
 	}
 
+	// Obtiene una representación de la cuadrícula con las posiciones y valores de las fichas.
 	get grid() {
 		const tiles = [];
 		for (const row of this.#cells) {
 			for (const cell of row) {
-				if (cell.tile !== undefined) {
+				if (cell.tile) {
 					tiles.push({
 						x: cell.x,
 						y: cell.y,
@@ -66,6 +69,7 @@ export default class Grid {
 		return tmpCells;
 	}
 
+	// Funcion que vacia las celdas de la cuadricula.
 	get #emptyCells() {
 		let tmpCells = new Array(GRID_SIZE);
 		for (let i = 0; i < GRID_SIZE; i++) {
@@ -75,6 +79,7 @@ export default class Grid {
 		return tmpCells;
 	}
 
+	// Funcion que agrega una nueva ficha a la cuadricula.
 	randomEmptyCell() {
 		const indexX = Math.floor(Math.random() * this.#emptyCells.length);
 		const indexY = Math.floor(Math.random() * this.#emptyCells[indexX].length);
@@ -82,6 +87,7 @@ export default class Grid {
 	}
 }
 
+// Clase que representa una celda de la cuadrícula.
 class Cell {
 	#cellElement;
 	#x;
@@ -125,6 +131,7 @@ class Cell {
 		this.#mergeTile.y = this.#y;
 	}
 
+	// Funcion que verifica si una celda puede aceptar una ficha.
 	canAccept(tile) {
 		return (
 			this.tile == null ||
@@ -132,18 +139,20 @@ class Cell {
 		);
 	}
 
+	// Funcion que une dos fichas en una celda.
 	mergeTiles(score) {
 		if (this.tile == null || this.mergeTile == null) return score;
-		this.tile.value = this.tile.value + this.mergeTile.value;
+		this.tile.value += this.mergeTile.value;
 		const newScore = Number.parseInt(score) + Number.parseInt(this.#tile.value);
-		document.getElementById('score').innerHTML = `Score: ${newScore}`;
+		document.getElementById("score").innerHTML = `Score: ${newScore}`;
 
 		this.mergeTile.remove();
 		this.mergeTile = null;
-		return score;
+		return newScore;
 	}
 }
 
+// Funcion que crea los elementos de las celdas de la cuadricula.
 function createCellElements(gridElement) {
 	const cells = new Array(GRID_SIZE);
 	for (let i = 0; i < GRID_SIZE; i++) {
@@ -151,8 +160,8 @@ function createCellElements(gridElement) {
 	}
 	for (let i = 0; i < GRID_SIZE; i++) {
 		for (let j = 0; j < GRID_SIZE; j++) {
-			const cell = document.createElement('div');
-			cell.classList.add('cell');
+			const cell = document.createElement("div");
+			cell.classList.add("cell");
 			cells[i][j] = cell;
 			gridElement.append(cell);
 		}

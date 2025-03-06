@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import type { Request } from "express";
 export interface User {
 	id?: string;
 	email: string;
@@ -8,6 +8,7 @@ export interface User {
 	bests?: BestsItem[];
 	leader?: number;
 }
+
 interface SaveBoardsItem {
 	name: string;
 	board: BoardItem[];
